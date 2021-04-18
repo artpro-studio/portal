@@ -1,0 +1,42 @@
+{
+  "name": "epd",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development nodemon server/index.js --watch server",
+    "build": "nuxt build",
+    "start": "cross-env NODE_ENV=production node server/index.js",
+    "generate": "nuxt generate",
+    "db:makemigrations": "./node_modules/sequelize-auto-migrations/bin/makemigration.js"
+  },
+  "dependencies": {
+    "@nuxtjs/axios": "^5.12.5",
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.19.0",
+    "core-js": "^3.8.3",
+    "csurf": "^1.11.0",
+    "csv-parser": "^3.0.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "js-cookie": "^2.2.1",
+    "jsonwebtoken": "^8.5.1",
+    "jwt-decode": "^3.1.2",
+    "nodemailer": "^6.5.0",
+    "nuxt": "^2.14.12",
+    "nuxt-i18n": "^6.22.3",
+    "sequelize": "^6.5.0",
+    "sequelize-auto-migrations": "github:scimonster/sequelize-auto-migrations#a063aa6535a3f580623581bf866cef2d609531ba",
+    "tedious": "^11.0.5",
+    "umzug": "^2.3.0",
+    "vue-yandex-maps": "^0.10.10",
+    "nodemon": "^2.0.7",
+    "pg": "^8.5.1",
+    "pg-hstore": "^2.3.3"
+  },
+  "devDependencies": {
+    "@intlify/vue-i18n-loader": "^2.0.3",
+    "@nuxtjs/vuetify": "^1.11.3",
+    "cross-env": "^7.0.3",
+    "sequelize-cli": "^6.2.0"
+  }
+}
