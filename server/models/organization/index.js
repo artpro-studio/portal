@@ -125,5 +125,5 @@ Organization.belongsToMany(MunicipalResource, { as: 'municipalResource', through
 MunicipalResource.belongsToMany(Organization, { as: 'organization', through: 'Organization_MunicipalResource' })
 
 
-Organization.belongsToMany(OrganizationRoles, { as: 'organizationRoles', through: 'Organization_MunicipalResource' })
+Organization.belongsToMany(OrganizationRoles, { as: 'organizationRoles', through: 'Organization_OrganizationRoles' })
 OrganizationRoles.belongsToMany(Organization, { as: 'rolesOrganization', through: 'Organization_OrganizationRoles' })

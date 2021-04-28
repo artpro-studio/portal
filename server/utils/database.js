@@ -9,4 +9,6 @@ const sequelize = new Sequelize('portal', 'admin', 'admin25', {
   }
 });
 
+
+
 module.exports = sequelize

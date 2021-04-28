@@ -41,6 +41,7 @@ module.exports.sendCounter = async (req, res, next) => {
     //Перебираем сгруппированый обьект по инн с отправкой на почту
     for (let key in groupData) {
       let emailTo = groupData[key][0].email // Куда отправлять
+      //let emailTo = 'ya.andreyi96@yandex.ru' // Куда отправлять
       let titleTo = groupData[key][0].titleForm // Название организации
       let messages = '' // Тело сообшения
 
@@ -53,7 +54,6 @@ module.exports.sendCounter = async (req, res, next) => {
       request = sendMailer(emailTo, 'Показание счетиков c portal-jkh.ru', messages)
     }
 
-    console.log('fromEmail', formData.fromEmail);
     //Отправка клиенту если почта есть
     if(formData.fromEmail != ''){
 
@@ -65,7 +65,6 @@ module.exports.sendCounter = async (req, res, next) => {
 
       })
 
-      console.log('items', items)
       request = sendMailer(formData.fromEmail, 'Показание счетиков c portal-jkh.ru', items)
 
     }

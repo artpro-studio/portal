@@ -1,4 +1,5 @@
 const { Sequelize, DataTypes } = require('sequelize')
+const { Organization } = require('../../models/organization/index')
 const sequelize = require('../../utils/database')
 
 
@@ -138,16 +139,6 @@ const House = sequelize.define('House', {
     type: DataTypes.STRING(10),
     allowNull: true,
     comment:'Подтвержденное количество нежилых помещений'
-  },
-  managementOrganization: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    comment:'Управляющая организация'
-  },
-  municipalityOrganization: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    comment:'Муниципальная организация'
   },
   maxFloorCount: {
     type: DataTypes.STRING(50),
@@ -305,35 +296,63 @@ const House = sequelize.define('House', {
 
 module.exports.House = House
 
-
-House.belongsTo(Types)
+// Связка тип дома
 
 Types.hasOne(House, {
+  as: 'typeHouse',
   foreignKey: {
-    name: 'houseType',
+    name: 'typeHouse',
     comment:'Тип',
   },
-  name: 'houseType',
-  comment:'Тип',
 })
+
+
+House.belongsTo(Types
+  ,{
+  as: 'houseTypeId',
+  foreignKey: 'houseType',
+  options:{
+    targetKey: 'houseTypeKey'
+  }
+})
+
+// Связка тип планировки
 
 Types.hasOne(House, {
   foreignKey: {
     name: 'planType',
     comment:'Тип планировки',
   },
-  name: 'planType',
-  comment:'Тип планировки',
 })
+
+House.belongsTo(Types,{
+    as: 'typePlanId',
+    foreignKey: 'typePlan',
+    options:{
+      targetKey: 'typePlan'
+    }
+})
+
+// Связка тип состояние дома
 
 Types.hasOne(House, {
   foreignKey: {
     name: 'houseCondition',
-    comment:'Тип планировки',
+    comment:'Состояние дома',
   },
   name: 'houseCondition',
   comment:'Состояние дома',
 })
+House.belongsTo(Types,{
+    as: 'сonditionHouseId',
+    foreignKey: 'сonditionHouse',
+    options:{
+      targetKey: 'сonditionHouse'
+    }
+})
+
+
+//Тип управления домом
 
 Types.hasOne(House, {
   foreignKey: {
@@ -343,7 +362,16 @@ Types.hasOne(House, {
   name: 'houseManagementType',
   comment:'Тип управления домом',
 })
+House.belongsTo(Types,{
+  as: 'ManagementTypeHouseId',
+  foreignKey: 'ManagementTypeHouse',
+  options:{
+    targetKey: 'ManagementTypeHouse'
+  }
+})
 
+
+//Стадия жизненного цикла
 Types.hasOne(House, {
   foreignKey: {
     name: 'lifeCycleStage',
@@ -352,6 +380,15 @@ Types.hasOne(House, {
   name: 'lifeCycleStage',
   comment:'Стадия жизненного цикла',
 })
+House.belongsTo(Types,{
+  as: 'lifeCycleStageTypeId',
+  foreignKey: 'lifeCycleStageType',
+  options:{
+    targetKey: 'lifeCycleStageType'
+  }
+})
+
+
 
 House.belongsTo(Nsi)
 Nsi.hasOne(House, {
@@ -401,4 +438,36 @@ Nsi.hasOne(House, {
   },
   name: 'street',
   comment:'Улица',
+})
+
+
+Organization.hasOne(House, {
+  foreignKey: {
+    name: 'managementOrganization',
+    comment:'Управляющая организация',
+  },
+  name: 'managementOrganization',
+  comment:'Управляющая организация',
+})
+House.belongsTo(Organization,{
+  as: 'organizationManagementId',
+  foreignKey: 'organizationManagement',
+  options:{
+    targetKey: 'organizationManagement'
+  }
+})
+
+
+Organization.hasOne(House, {
+  foreignKey: {
+    name: 'municipalityOrganization',
+    comment:'Муниципальная организация',
+  },
+})
+House.belongsTo(Organization,{
+  as: 'organizationMunicipalityId',
+  foreignKey: 'organizationMunicipality',
+  options:{
+    targetKey: 'organizationMunicipality'
+  }
 })

@@ -25,7 +25,6 @@ module.exports.postToken = async (req, res, next) => {
       res.status(200).json({ status: false })
       return false;
     }
-    console.log(Math.floor(new Date().getTime()))
     const token = jwt.sign({ login, id: candidate.id, exp: Math.floor(Date.now() / 1000) + (60 * 60)}, config.env.apiJWT);
 
     res.json({ token, user: candidate, status: true })
@@ -43,9 +42,7 @@ module.exports.getToken = async (req, res, next) => {
     if(!token){
       return next(ApiError.errorValidations('Не авторизованы'))
     }
-    console.log(token)
     const decoded = jwt.verify(token, config.env.apiJWT)
-    console.log(decoded)
 
 
     //Проверка на наличия пользеователя

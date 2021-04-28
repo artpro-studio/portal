@@ -1,6 +1,7 @@
 const { MunicipalResource } = require ("../../models/organization/municipalResource");
 
 const { Organization } = require('../../models/organization/index')
+const { Nsi, Types, House } = require('../../models/house/index')
 const bodyParser = require('body-parser');
 const ApiError = require('../../handlers/apiError')
 const {handlerDataTable} = require('../../handlers/handlerDataApi')
@@ -31,12 +32,7 @@ module.exports.get = async (req, res, next) => {
   //Получение списка организаций
   try {
     let organization = await Organization.findAll({
-      attributes: ['id','shortName','inn', 'url', 'email'],
-      include: [{
-        model: MunicipalResource,
-        as:'MunicipalResource',
-        attributes:['id', 'name', 'code']  // включаем столбец name из таблицы teams
-      }]
+      attributes: ['id','shortName','inn', 'url', 'email']
     })
 
     let resources = await MunicipalResource.findAll({
@@ -44,6 +40,50 @@ module.exports.get = async (req, res, next) => {
     })
 
     organization = await handlerDataTable(organization, Organization.rawAttributes)
+    res.json({ data:organization, resources, status: true })
+  } catch (e) {
+    console.log(e)
+    return next(ApiError.errorValidations('Ошибка'))
+  }
+}
+
+module.exports.searchOrganization = async (req, res, next) => {
+  //Получение списка организаций c пагниацией и поиском
+  try {
+    let search = req.body.search.split(' ')
+    let offsetData = req.body.offset ? req.body.offset * 10 : 0
+    let newSearch = search.map(item => {
+      return item = '%' + item + '%'
+    })
+    let filter = {} // Cобираем фильтр
+    if(search != ""){
+      filter = {
+        fullName: {
+          [Op.iLike]: { [Op.all]: newSearch}
+        }
+      }
+    }
+    let organization = await Organization.findAndCountAll({
+      where:{
+        ...filter
+      },
+      attributes: ['id','shortName','inn', 'url', 'email', 'orgAddress'],
+      limit: 20,
+      offset: offsetData,
+      include: // MunicipalResource
+        [
+        {
+          model: MunicipalResource,
+          as:'municipalResource',
+          attributes:['id', 'name', 'municipalResourceName']  // включаем столбец name из таблицы teams
+        }
+      ]
+    })
+
+    let resources = await MunicipalResource.findAll({
+      attributes:['id', 'municipalResourceName', 'code']
+    })
+
     res.json({ data:organization, resources, status: true })
   } catch (e) {
     console.log(e)
@@ -131,7 +171,6 @@ module.exports.liveSearch = async (req, res, next) => {
     let newSearch = search.map(item => {
       return item = '%' + item + '%'
     })
-    console.log(newSearch)
     const organizations= await Organization.findAndCountAll({
       where:{
         fullName: {
@@ -146,4 +185,57 @@ module.exports.liveSearch = async (req, res, next) => {
     return next(ApiError.errorValidations(e))
   }
   return next(ApiError.errorValidations('Ошибка'))
+}
+
+module.exports.getOrganizationGUID = async (req, res, next) => {
+  //Получение данных об одной обрганизации по GUID
+  try {
+    let data = req.body
+
+    const organization = await Organization.findOne({
+      where: data,
+    })
+
+    let resources = await MunicipalResource.findAll({
+      attributes:['id', 'name', 'code']
+    })
+
+    res.status(200).json({organization, resources, status: true })
+  }catch (e) {
+    console.log(e)
+    return next(ApiError.errorValidations('Ошибка'))
+  }
+}
+
+module.exports.searchOrganizationParams = async (req, res, next) => {
+  try {
+    let and = req.body.and
+    let or = req.body.or
+    const organizations= await Organization.findAndCountAll({
+      include: [
+{
+        model: House,
+        as: 'managementOrganization',
+        where: {
+          [Op.or]: or,
+          [Op.and]: and
+        }
+      }, 
+{
+        model: House,
+        as: 'municipulOrganization',
+        where: {
+          [Op.or]: or,
+          [Op.and]: and
+        }
+      }
+] 
+    })
+    // column House.OrganizationId does not exist
+
+    res.status(200).json({status: true , organizations})
+  }catch (e) {
+    console.log(e)
+    return next(ApiError.errorValidations('Ошибка'))
+  }
 }

@@ -6,7 +6,6 @@ const handlerDataTable = (data, model) => {
     headers = data.dataValues || data[0].dataValues
   }
 
-  //console.log('headers', headers);
   if(Array.isArray(data)){
     //Проверка если обьект пришел один
     result.content = data.map( item => {
@@ -30,10 +29,8 @@ const handlerDataTable = (data, model) => {
 
   result.headers = []
   for (let key in headers) {
-    console.log(key,headers[key]);
-    let modelText = model[key] || model[key + 's']
-    console.log('modelText', modelText)
-    result.headers.push({text:modelText.comment, value: key})
+    let modelText = model[key] || model[key + 's'] || {}
+    result.headers.push({text:modelText.comment || '', value: key})
   }
 
   return result;

@@ -2,6 +2,7 @@ const bodyParser = require('body-parser');
 const ApiError = require('../../handlers/apiError')
 const {handlerDataTable} = require('../../handlers/handlerDataApi')
 const { Nsi, Types, House } = require('../../models/house/index')
+const { Organization } = require('../../models/organization/index')
 const { Op } = require("sequelize");
 
 
@@ -22,7 +23,21 @@ module.exports.Area = async (req, res, next) => {
   //Района по guid
   try {
     let aoGuid = req.body.aoGuid
-    const area = await Nsi.findAll({ where: {parentGuid: aoGuid} })
+    let area = await Nsi.findAll({
+      where: {parentGuid: aoGuid},
+      order: [
+        ['level', 'DESC'],
+      ],
+    })
+    area = area.map(item => {
+      if(item.level === 3){
+        item.name = 'р-н. ' + item.name
+      }
+      if(item.level === 4){
+        item.name = 'г. ' + item.name
+      }
+      return item
+    })
     res.json({status: true, area })
   } catch (e) {
     console.log(e)
@@ -57,9 +72,11 @@ module.exports.Street = async (req, res, next) => {
 module.exports.Home = async (req, res, next) => {
   //Улицы по guid
   try {
-    let and = req.body.and, or = req.body.or, intOffset = req.body.offset, intLimit = 10;
+    let and = req.body.and,
+      or = req.body.or,
+      intOffset = req.body.offset,
+      intLimit = 10;
     let house = [];
-    console.log('intOffset', intOffset)
     if(!or){
       house = await House.findAndCountAll({
         where: {
@@ -91,11 +108,17 @@ module.exports.HomeOne = async (req, res, next) => {
   try {
     let data = req.body
     const house = await House.findOne({
-      include: [{
-        model: Types,
-      }],
-
       where: data,
+      include:[
+        {
+          model:Types,
+          as:'houseTypeId'
+        },
+        {
+          model:Organization,
+          as:'organizationManagementId'
+        }
+      ]
     })
     res.json({status: true, house })
   } catch (e) {
@@ -133,7 +156,6 @@ module.exports.LiveHouse = async (req, res, next) => {
     let newSearch = search.map(item => {
       return item = '%' + item + '%'
     })
-    console.log(newSearch)
     const house = await House.findAndCountAll({
       where:{
         formattedAddress: {

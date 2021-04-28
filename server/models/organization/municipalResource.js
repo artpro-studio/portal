@@ -31,7 +31,7 @@ const MunicipalResource = sequelize.define('MunicipalResource', {
     comment:'Полное название',
   },
   name:{
-    type: DataTypes.STRING(36),
+    type: DataTypes.STRING(100),
     allowNull: true,
     comment:'Название',
   },
@@ -69,7 +69,7 @@ const OrganizationRoles = sequelize.define('OrganizationRoles', {
     comment:'Короткое название',
   },
   fullName:{
-    type: DataTypes.STRING(36),
+    type: DataTypes.STRING(255),
     allowNull: true,
     comment:'Полное название',
   }
