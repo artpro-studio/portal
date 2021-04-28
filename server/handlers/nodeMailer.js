@@ -12,8 +12,8 @@ const sendMailer = async (toMails, subject, htmlMessage) => {
     port: 465,
     secure: true, // true for 465, false for other ports
     auth: {
-      user: 'meter@portaljkh.ru', // generated ethereal user
-      pass: 'portalJKH@GADmin', // generated ethereal password
+      user: 'test@mail.ru', // generated ethereal user
+      pass: 'testtest', // generated ethereal password
     },
   });
 
