@@ -1,0 +1,7 @@
+id;guid;code;actual;canLinkWithDevice;name;sortOrder;rootEntityGuid;municipalResourceName
+1;25a29bae-e430-4424-8f34-8ad83c578657;5;True;True;ТЭ;5;25a29bae-e430-4424-8f34-8ad83c578657;Тепловая энергия
+2;82f90cca-24dc-4ff7-ac66-05e53070e5a3;1;True;True;ХВ;1;82f90cca-24dc-4ff7-ac66-05e53070e5a3;Холодная вода
+3;7459c9f5-5d7f-42b4-9cd0-6674737d79fa;2;True;True;ГВ;2;7459c9f5-5d7f-42b4-9cd0-6674737d79fa;Горячая вода
+4;322714d7-5e87-47f0-a02c-74170ab1d7a0;8;True;True;СВ;8;322714d7-5e87-47f0-a02c-74170ab1d7a0;Сточные воды
+5;424c6769-51a7-43b4-8d26-fdcbe7a7d9f4;3;True;True;ЭлЭ;3;424c6769-51a7-43b4-8d26-fdcbe7a7d9f4;Электрическая энергия
+6;8ebe48c5-8124-4551-a909-3059a91b739a;4;True;True;Газ;4;8ebe48c5-8124-4551-a909-3059a91b739a;Газ
