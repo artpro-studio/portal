@@ -51,7 +51,7 @@ module.exports.sendCounter = async (req, res, next) => {
 
       })
 
-      request = sendMailer(emailTo, 'Показание счетиков c portal-jkh.ru', messages)
+      request = sendMailer('ya.andreyi96@yandex.ru', 'Показание счетиков c portal-jkh.ru', messages)
     }
 
     //Отправка клиенту если почта есть
@@ -74,5 +74,17 @@ module.exports.sendCounter = async (req, res, next) => {
   } catch (e) {
     console.log(e);
     return next(ApiError.errorValidations(e))
+  }
+}
+module.exports.callBack = async (req, res, next) => {
+  //Отправка заявки
+  try {
+    const { name,phone,comment } = req.body
+    let messages = `ФИО: ${name}; Телефон: ${phone}; Комментарий: ${comment}`
+    let request = sendMailer('ya.andreyi96@yandex.ru', 'Заявка с ЕПД', messages)
+    res.json({status: true })
+  } catch (e) {
+    return next(ApiError.errorValidations(e))
+    console.log(e)
   }
 }

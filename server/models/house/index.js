@@ -79,231 +79,249 @@ const Nsi = sequelize.define('Nsi', {
 module.exports.Nsi = Nsi
 
 
-const House = sequelize.define('House', {
-  id:{
-    primaryKey: true,
-    autoIncrement: true,
-    allowNull: false,
-    type: DataTypes.INTEGER,
-    comment:'id',
-  },
-  guid: {
-    type: DataTypes.STRING(36),
-    comment:'guid',
-  },
-  rootGuid: {
-    type: DataTypes.STRING(36),
-    allowNull: true,
-    comment:'Главный guid',
-  },
-  planSeries: {
-    type: DataTypes.STRING(255),
-    comment:'Серия',
-  },
-  buildingYear: {
-    type: DataTypes.STRING(100),
-    allowNull: true,
-    comment:'Год постройки'
-  },
-  operationYear: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    comment:'Год операции'
-  },
-  residentialPremiseCount: {
-    type: DataTypes.STRING(10),
-    allowNull: true,
-    comment:'Количество жилых помещений'
-  },
-  nonResidentialPremiseCount: {
-    type: DataTypes.STRING(10),
-    allowNull: true,
-    comment:'Количество нежилых помещений'
-  },
-  residentialPremiseActualCount: {
-    type: DataTypes.STRING(10),
-    allowNull: true,
-    comment:'Фактическое количество жилых помещений'
-  },
-  nonResidentialPremiseActualCount: {
-    type: DataTypes.STRING(10),
-    allowNull: true,
-    comment:'Фактическое количество нежилых помещений'
-  },
-  residentialPremiseConfirmedCount: {
-    type: DataTypes.STRING(10),
-    allowNull: true,
-    comment:'Подтвержденное количество жилых помещений'
-  },
-  nonResidentialPremiseConfirmedCount: {
-    type: DataTypes.STRING(10),
-    allowNull: true,
-    comment:'Подтвержденное количество нежилых помещений'
-  },
-  maxFloorCount: {
-    type: DataTypes.STRING(50),
-    allowNull: true,
-    comment:'Максимальное количество этажей'
-  },
-  floorCount: {
-    type: DataTypes.STRING(50),
-    allowNull: true,
-    comment:'Количество этажей'
-  },
-  deterioration: {
-    type: DataTypes.STRING(10),
-    allowNull: true,
-    comment:'Износ'
-  },
-  totalSquare: {
-    type: DataTypes.FLOAT(10, 2),
-    allowNull: true,
-    comment:'Общая площадь'
-  },
+const House = sequelize.define('House',
+  {
+    id: {
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+      type: DataTypes.INTEGER,
+      comment: 'id',
+    },
+    guid: {
+      type: DataTypes.STRING(36),
+      comment: 'guid',
+    },
+    rootGuid: {
+      type: DataTypes.STRING(36),
+      allowNull: true,
+      comment: 'Главный guid',
+    },
+    planSeries: {
+      type: DataTypes.STRING(255),
+      comment: 'Серия',
+    },
+    buildingYear: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      comment: 'Год постройки'
+    },
+    operationYear: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      comment: 'Год операции'
+    },
+    residentialPremiseCount: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      comment: 'Количество жилых помещений'
+    },
+    nonResidentialPremiseCount: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      comment: 'Количество нежилых помещений'
+    },
+    residentialPremiseActualCount: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      comment: 'Фактическое количество жилых помещений'
+    },
+    nonResidentialPremiseActualCount: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      comment: 'Фактическое количество нежилых помещений'
+    },
+    residentialPremiseConfirmedCount: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      comment: 'Подтвержденное количество жилых помещений'
+    },
+    nonResidentialPremiseConfirmedCount: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      comment: 'Подтвержденное количество нежилых помещений'
+    },
+    maxFloorCount: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      comment: 'Максимальное количество этажей'
+    },
+    floorCount: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      comment: 'Количество этажей'
+    },
+    deterioration: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      comment: 'Износ'
+    },
+    totalSquare: {
+      type: DataTypes.FLOAT(10, 2),
+      allowNull: true,
+      comment: 'Общая площадь'
+    },
 
-  residentialSquare: {
-    type: DataTypes.FLOAT(10, 2),
-    allowNull: true,
-    comment:'Жилая площадь'
+    residentialSquare: {
+      type: DataTypes.FLOAT(10, 2),
+      allowNull: true,
+      comment: 'Жилая площадь'
+    },
+    landSurveyTotalSquare: {
+      type: DataTypes.FLOAT(10, 2),
+      allowNull: true,
+      comment: 'landSurveyTotalSquare'
+    },
+    accountCount: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      comment: 'Кол-во жильцов'
+    },
+    devices: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      comment: 'Устройства'
+    },
+    cadastreNumber: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      comment: 'Кадастровый номер'
+    },
+    oldCadastreNumber: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      comment: 'Старый кадастровый номер'
+    },
+    chiefFirstName: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      comment: 'Имя главы'
+    },
+    chiefLastName: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      comment: 'Фамилия главы'
+    },
+    chiefMiddleName: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      comment: 'Отчество главы'
+    },
+    managementContractDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: 'Дата начала контракта'
+    },
+    endContractDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: 'Дата конца контракта'
+    },
+    houseEnergyEfficiency: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      comment: 'Уровень энергоэффективности'
+    },
+    energyInspectionDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: 'Дата инспекции энергии'
+    },
+    minFloorCount: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      comment: 'Минимальное количество этажей'
+    },
+    undergroundFloorCount: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      comment: 'Количество этажей под землей'
+    },
+    overhaulFundContribution: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      comment: 'Капитальный ремонт взноса в фонд'
+    },
+    overhaulFundForming: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      comment: 'Формирование фонда капитального ремонта'
+    },
+    buildingSquare: {
+      type: DataTypes.FLOAT(10, 2),
+      allowNull: true,
+      comment: 'Площадь застройки'
+    },
+    postalCode: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      comment: 'Почтовый индекс'
+    },
+    postalAddress: {
+      type: DataTypes.STRING(1023),
+      allowNull: true,
+      comment: 'Почтовый адрес'
+    },
+    houseNumber: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      comment: 'Номер дома'
+    },
+    buildingNumber: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      comment: 'Номер структуры'
+    },
+    additionalName: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      comment: 'Дополнительное имя'
+    },
+    formattedAddress: {
+      type: DataTypes.STRING(400),
+      allowNull: true,
+      comment: 'Дополнительное имя'
+    },
+    estStatus: {
+      type: DataTypes.STRING(400),
+      allowNull: true,
+      comment: 'Дополнительное имя'
+    },
+    fiasHouseGuid: {
+      type: DataTypes.STRING(36),
+      allowNull: true,
+      comment: 'ФИАС'
+    },
+    houseTextAddress: {
+      type: DataTypes.STRING(200),
+      allowNull: true,
+      comment: 'Полный адрес'
+    },
   },
-  landSurveyTotalSquare: {
-    type: DataTypes.FLOAT(10, 2),
-    allowNull: true,
-    comment:'landSurveyTotalSquare'
-  },
-  accountCount: {
-    type: DataTypes.STRING(10),
-    allowNull: true,
-    comment:'Кол-во жильцов'
-  },
-  devices: {
-    type: DataTypes.STRING(50),
-    allowNull: true,
-    comment:'Устройства'
-  },
-  cadastreNumber: {
-    type: DataTypes.STRING(50),
-    allowNull: true,
-    comment:'Кадастровый номер'
-  },
-  oldCadastreNumber: {
-    type: DataTypes.STRING(50),
-    allowNull: true,
-    comment:'Старый кадастровый номер'
-  },
-  chiefFirstName: {
-    type: DataTypes.STRING(100),
-    allowNull: true,
-    comment:'Имя главы'
-  },
-  chiefLastName: {
-    type: DataTypes.STRING(100),
-    allowNull: true,
-    comment:'Фамилия главы'
-  },
-  chiefMiddleName: {
-    type: DataTypes.STRING(100),
-    allowNull: true,
-    comment:'Отчество главы'
-  },
-  managementContractDate: {
-    type: DataTypes.DATE,
-    allowNull: true,
-    comment:'Дата начала контракта'
-  },
-  endContractDate: {
-    type: DataTypes.DATE,
-    allowNull: true,
-    comment:'Дата конца контракта'
-  },
-  houseEnergyEfficiency: {
-    type: DataTypes.STRING(100),
-    allowNull: true,
-    comment:'Уровень энергоэффективности'
-  },
-  energyInspectionDate: {
-    type: DataTypes.DATE,
-    allowNull: true,
-    comment:'Дата инспекции энергии'
-  },
-  minFloorCount: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    comment:'Минимальное количество этажей'
-  },
-  undergroundFloorCount: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    comment:'Количество этажей под землей'
-  },
-  overhaulFundContribution: {
-    type: DataTypes.STRING(100),
-    allowNull: true,
-    comment:'Капитальный ремонт взноса в фонд'
-  },
-  overhaulFundForming: {
-    type: DataTypes.STRING(100),
-    allowNull: true,
-    comment:'Формирование фонда капитального ремонта'
-  },
-  buildingSquare: {
-    type: DataTypes.FLOAT(10, 2),
-    allowNull: true,
-    comment:'Площадь застройки'
-  },
-  postalCode: {
-    type: DataTypes.STRING(20),
-    allowNull: true,
-    comment:'Почтовый индекс'
-  },
-  houseNumber: {
-    type: DataTypes.STRING(20),
-    allowNull: true,
-    comment:'Номер дома'
-  },
-  buildingNumber: {
-    type: DataTypes.STRING(20),
-    allowNull: true,
-    comment:'Номер структуры'
-  },
-  additionalName: {
-    type: DataTypes.STRING(50),
-    allowNull: true,
-    comment:'Дополнительное имя'
-  },
-  formattedAddress: {
-    type: DataTypes.STRING(400),
-    allowNull: true,
-    comment:'Дополнительное имя'
-  },
-  estStatus: {
-    type: DataTypes.STRING(400),
-    allowNull: true,
-    comment:'Дополнительное имя'
-  },
-  fiasHouseGuid: {
-    type: DataTypes.STRING(36),
-    allowNull: true,
-    comment:'ФИАС'
-  },
-  houseTextAddress: {
-    type: DataTypes.STRING(200),
-    allowNull: true,
-    comment:'Полный адрес'
-  },
-})
+  {
+    indexes: [
+      {
+        unique: false,
+        fields: ['city', 'area','region']
+      },
+      {
+        unique: false,
+        fields: ['city', 'area', 'settlement', 'region']
+      },
+      {
+        unique: false,
+        fields: ['street', 'city', 'area', 'settlement', 'region']
+      },
+      ]
+  }
+)
 
 
 module.exports.House = House
 
 // Связка тип дома
-
 Types.hasOne(House, {
   as: 'typeHouse',
-  foreignKey: {
-    name: 'typeHouse',
-    comment:'Тип',
-  },
 })
 
 
@@ -442,32 +460,30 @@ Nsi.hasOne(House, {
 
 
 Organization.hasOne(House, {
-  foreignKey: {
-    name: 'managementOrganization',
-    comment:'Управляющая организация',
-  },
+  foreignKey: 'managementOrganizationId',
   name: 'managementOrganization',
+  as: 'managementOrganization',
   comment:'Управляющая организация',
+  constraints: false
 })
 House.belongsTo(Organization,{
-  as: 'organizationManagementId',
-  foreignKey: 'organizationManagement',
-  options:{
-    targetKey: 'organizationManagement'
-  }
+  foreignKey: 'managementOrganizationId',
+  name: 'managementOrganization',
+  as: 'managementOrganization',
+  comment:'Управляющая организация',
+  constraints: false
 })
 
+let settingHouseOrg = {
+  foreignKey: 'municipalityOrganizationId',
+  name: 'municipalityOrganization',
+  as: 'municipalityOrganization',
+  comment:'Муниципальная организация',
+  constraints: false
+}
+Organization.hasOne(House, settingHouseOrg)
+House.belongsTo(Organization, settingHouseOrg)
 
-Organization.hasOne(House, {
-  foreignKey: {
-    name: 'municipalityOrganization',
-    comment:'Муниципальная организация',
-  },
-})
-House.belongsTo(Organization,{
-  as: 'organizationMunicipalityId',
-  foreignKey: 'organizationMunicipality',
-  options:{
-    targetKey: 'organizationMunicipality'
-  }
-})
+
+House.belongsToMany(Organization, { as: 'resourceProvisionOrganizationList', through: 'House_Organization' })
+Organization.belongsToMany(House, { as: 'organizationResourceProvisionList', through: 'House_Organization' })

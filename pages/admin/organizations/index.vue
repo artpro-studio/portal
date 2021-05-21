@@ -158,7 +158,6 @@
 
         this.create.modal = false;
         this.data.content.push(request.data.content[0])
-        console.log('user', this.data.content)
       },
       async deleteUser(item){
         //Удаление пользователя

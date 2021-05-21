@@ -22,7 +22,7 @@ export const actions = {
           let request = await dispatch('user/autoLogin');
 
         } catch (e) {
-          console.log();
+          console.log(e);
         }
       }
 

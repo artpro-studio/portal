@@ -1,6 +1,64 @@
 .header{
   padding: 25px 0;
   z-index: 10;
+  transition: .4s all;
+  &.fixed{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    .logo{
+      a{
+        color: #fff;
+      }
+    }
+    .menu{
+      ul{
+        li{
+          a{
+            color: #fff;
+            &:before{
+              background-color: #fff;
+            }
+          }
+        }
+      }
+    }
+    .lang{
+      a{
+        color: #fff;
+        border-right: 1px rgba(255, 255, 255, 0.2) solid;
+      }
+    }
+  }
+  &.active{
+    background-color: #fff;
+    padding: 5px 0;
+    .logo{
+      a{
+        color: #333;
+      }
+    }
+    .menu{
+      ul{
+        li{
+          a{
+            color: #333;
+            &:before{
+              background-color: #333;
+            }
+          }
+        }
+      }
+    }
+    .lang{
+      a{
+        color: #333;
+        border-right: 1px rgba(0, 0, 0, 0.2) solid;
+      }
+    }
+  }
   &.white{
     background-color: transparent !important;
     z-index: 1000;
@@ -44,6 +102,11 @@
   }
   .logo{
     position: relative;
+    &.hiddenCircle{
+      &:before{
+        display: none;
+      }
+    }
     &:hover{
       &:before{
         margin-top: -20px;

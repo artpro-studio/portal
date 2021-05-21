@@ -5,25 +5,30 @@
       <searchForm
         title="Информация по адресу"
         isChecked="true"
-        :data="data"
+        :dataSearch="dataSearch"
         @liveSend="liveSend"
         @sendParams="sendParams"
+        @sendParamsOrg="sendParamsOrg"
         @clearData="clearData"
+        @switchHandler="switchHandler"
+        @liveSendOrganization="liveSendOrganization"
       />
 
       <searchList
         :data="dataList"
         :isParams="isParams"
         @sendParams="liveSend"
+        @sendParamsOrg="liveSendOrganization"
       />
 
       <searchContent
-        :data="data"
+        :dataSearch="dataSearch"
         :isSettings="isSettings"
         :isParams="isParams"
+        @selectOrganization="liveSendOrganization"
       />
 
-      <apiMaps :data="data" :isParams="isParams"/>
+      <apiMaps :dataSearch="dataSearch" :isParams="isParams"/>
 
     </div>
   </div>
@@ -37,16 +42,29 @@
   import searchList from '/components/default/components/portal/searchList'
 
   export default {
+    head() {
+      return {
+        title: 'Справочник',
+        meta: [
+          // hid is used as unique identifier. Do not use `vmid` for it as it will not work
+          {
+            hid: 'description',
+            name: 'description',
+            content: 'Справочник'
+          }
+        ]
+      }
+    },
     mixins:[handlerAxiosMixins],
     data(){
       return{
         listServices:[],
-        isSettings:false,
-        data:{},
+        isSettings:false,//Включены ли расширеные настройки
+        dataSearch:{},
         dataList:{
           rows:[],
         },
-        isParams: false,
+        isParams: false, //Организация или адрес
       }
     },
     async created() {
@@ -60,19 +78,30 @@
       searchList
     },
     methods:{
+      switchHandler(status){
+        this.isSettings = status
+      },
       liveSend(data){
-        console.log('LiveSend', data)
-        this.data = data;
+        this.dataSearch = data || {};
         this.isParams = false
       },
-      sendParams(data){
-        console.log('sendParams', data)
-        this.dataList = data
+      liveSendOrganization(data){
+        this.dataSearch = data;
+        this.isParams = false
         this.isParams = true
       },
+      sendParams(data){
+        this.dataList = data || {}
+        this.isParams = false
+        this.dataSearch = {}
+      },
+      sendParamsOrg(data){
+        this.dataList = data || {}
+        this.isParams = true
+        this.dataSearch = {}
+      },
       clearData(){
-        console.log('clearData')
-        this.data = {};
+        this.dataSearch = {};
         this.dataList = {
           rows:[]
         };

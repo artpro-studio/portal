@@ -73,9 +73,10 @@ module.exports.Home = async (req, res, next) => {
   //Улицы по guid
   try {
     let and = req.body.and,
-      or = req.body.or,
-      intOffset = req.body.offset,
-      intLimit = 10;
+        or = req.body.or,
+        intOffset = req.body.offset || 1,
+        intLimit = req.body.limit || 10;
+    intOffset -= 1
     let house = [];
     if(!or){
       house = await House.findAndCountAll({
@@ -83,7 +84,7 @@ module.exports.Home = async (req, res, next) => {
           [Op.and]: and,
         },
         limit: intLimit,
-        offset: intOffset,
+        offset: intOffset * intLimit,
       })
     }else{
       house = await House.findAndCountAll({
@@ -92,7 +93,7 @@ module.exports.Home = async (req, res, next) => {
           [Op.and]: and,
         },
         limit: intLimit,
-        offset: intOffset,
+        offset: intOffset * intLimit,
       })
     }
 
@@ -116,8 +117,13 @@ module.exports.HomeOne = async (req, res, next) => {
         },
         {
           model:Organization,
-          as:'organizationManagementId'
+          as:'managementOrganization'
+        },
+        {
+          model:Organization,
+          as:'resourceProvisionOrganizationList'
         }
+
       ]
     })
     res.json({status: true, house })

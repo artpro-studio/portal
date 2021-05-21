@@ -1,6 +1,6 @@
 <template>
   <div class="counter_pages">
-    <div class="counter_pages__top pages__title flex space-between">
+    <div class="counter_pages__top pages__title d-flex space-between align-center">
       <div class="text">
         <h1>{{$t('titlePage')}}</h1>
         <p>{{$t('modalCountTitle')}}</p>
@@ -11,13 +11,24 @@
           class="recoveryCounter"
           @click="recoveryCounter"
           text>{{$t('modalCountRecovery')}}</v-btn>
-        <v-btn
-          color="primary"
-          class="sendModal"
-          @click="sendCounter"
-        >
-          {{$t('modalCountSend')}}
-        </v-btn>
+
+          <v-btn
+            color="primary"
+            class="sendModal"
+            @click="sendCounter"
+            :disabled="controls.isSend"
+          >
+            {{$t('modalCountSend')}}
+          </v-btn>
+          <v-btn
+            color="primary"
+            class="recoveryCounter"
+            @click="closeModal"
+            v-if="isModal"
+            text> <v-icon
+            medium
+            dark
+          >mdi-close</v-icon></v-btn>
       </div>
     </div>
     <div class="counter_pages__content">
@@ -25,8 +36,7 @@
         <v-form class="formCounter">
           <v-container>
             <v-row>
-              <v-col cols="12" md="4" v-for="item in counter.forms" :key="item.id">
-
+              <v-col cols="12" md="4" v-for="(item, index) in counter.forms" :key="item.id" v-if="index === 0 || counter.forms[index - 1].email != ''">
                 <div class="text" @click="openService" v-if="item.isHidden == true">
                   <v-icon>mdi-plus</v-icon>
                   <h4>{{$t('modalCountItemTitle')}}</h4>
@@ -61,16 +71,21 @@
                     <v-col cols="12">
                       <v-select
                         v-model="item.type"
-                        :items="counter.types"
+                        :items="item.types"
                         v-if="item.isType != false"
-                        item-text="name"
-                        item-value="name"
+                        :rules="isNotNull"
+                        item-text="municipalResourceName"
+                        item-value="municipalResourceName"
                         :label="$t('modalCountItemType')"
                       ></v-select>
                     </v-col>
                     <v-col cols="6">
                       <v-text-field
                         v-model="item.licNumber"
+                        type="number"
+                        :rules="rulesLic"
+                        counter="15"
+                        hint="Лицевой счет от 6 до 13 символов"
                         :label="$t('modalCountItemLic')"
                         required
                       ></v-text-field>
@@ -78,6 +93,8 @@
                     <v-col cols="6">
                       <v-text-field
                         v-model="item.thisView"
+                        type="number"
+                        :rules="maxView"
                         :label="$t('modalCountItemThisView')"
                         required
                       ></v-text-field>
@@ -96,6 +113,9 @@
             </v-row>
           </v-container>
         </v-form>
+        <div class="captcha">
+          <recaptcha />
+        </div>
         <div class="modal__footer">
           <div class="modal__bottom">
             <div class="top__text">
@@ -126,64 +146,43 @@
     </div>
 
 
-
     <v-dialog
       v-model="service.modal"
       content-class="modal"
+      max-width="1200"
+    >
+        <serviceModal
+          :modal="service.modal"
+          :listIds="service.listSortIds"
+          @closeModal="closeModalService"
+          @selectService="selectService"
+        />
+    </v-dialog>
+
+
+    <v-dialog
+      v-model="send.isGood"
+      content-class="modal modalIsGood"
       max-width="500"
     >
+
       <v-card>
-        <div class="modal__top">
-          <div class="top__text">
-            <v-card-title>{{$t('modalServiceTitle')}}</v-card-title>
-          </div>
-        </div>
-
-        <v-form class="modalService">
-          <v-container>
-            <v-row>
-              <v-col cols="12">
-                <v-select
-                  v-model="service.data"
-                  :items="service.list"
-                  attach
-                  :label="$t('modalServiceSelectText')"
-                  :no-data-text="$t('noSearch')"
-                  item-value="MunicipalResource"
-                  item-text="shortName"
-                >
-                  <template v-slot:prepend-item>
-                    <v-list-item>
-                      <v-list-item-content>
-                        <v-text-field v-model="search.selectInput" :placeholder="$t('placeholderName')" @input="searchService"></v-text-field>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </template>
-                </v-select>
-              </v-col>
-            </v-row>
-          </v-container>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-              color="primary darken-1"
-              text
-              @click="service.modal = false"
-            >
-              {{$t('modalServiceClose')}}
-            </v-btn>
-            <v-btn
-              color="primary"
-              @click="selectService"
-            >
-              {{$t('modalServiceSend')}}
-            </v-btn>
-          </v-card-actions>
-        </v-form>
-
+        <v-card-title class="headline">Спасибо за использование сервиса!</v-card-title>
+        <v-card-text>Ваши показания счетчиков отправлены выбранным организациям.</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary darken-1"
+            text
+            @click="send.isGood = false"
+          >
+            Закрыть
+          </v-btn>
+        </v-card-actions>
       </v-card>
+
     </v-dialog>
+
   </div>
 </template>
 
@@ -192,8 +191,12 @@
   import Cookies from 'js-cookie'
   import handlerAxiosMixins from '~/mixins/hendlerAxios.mixins'
 
+  import serviceModal from "/components/default/components/portal/serviceModal";
+
     export default {
-    mixins:[handlerAxiosMixins],
+      props:['dataService', 'isModal'],
+      mixins:[handlerAxiosMixins],
+      components:{serviceModal},
       data(){
           return{
             counter:{
@@ -203,6 +206,7 @@
                   id:0,
                   titleForm:'',
                   type: '',
+                  types: [],
                   licNumber: '',
                   thisView: 0,
                   comment:'',
@@ -213,6 +217,7 @@
                 {
                   id:1,
                   type: '',
+                  types: [],
                   licNumber: '',
                   thisView: 0,
                   comment:'',
@@ -225,6 +230,7 @@
                   id:2,
                   titleForm:'',
                   type: '',
+                  types: [],
                   licNumber: '',
                   thisView: 0,
                   comment:'',
@@ -237,6 +243,7 @@
                   id:3,
                   titleForm:'',
                   type: '',
+                  types: [],
                   licNumber: '',
                   thisView: 0,
                   comment:'',
@@ -249,6 +256,7 @@
                   id:4,
                   titleForm:'',
                   type: '',
+                  types: [],
                   licNumber: '',
                   thisView: 0,
                   comment:'',
@@ -261,6 +269,7 @@
                   id:5,
                   titleForm:'',
                   type: '',
+                  types: [],
                   licNumber: '',
                   thisView: 0,
                   comment:'',
@@ -270,36 +279,27 @@
                   isHidden: true
                 },
               ],
-              types:[
-                {
-                  id: 0,
-                  name: 'Горячая вода (сан)',
-                },
-                {
-                  id: 1,
-                  name: 'Холодная вода (сан)',
-                },
-                {
-                  id: 1,
-                  name: 'Холодная вода (кух)',
-                },
-                {
-                  id: 1,
-                  name: 'Холодная вода (кух)',
-                },
-              ],
+              types:[],
               fromEmail: '',
               isOld:false,
               oldData:[],
             },
             service:{
               modal:false,
-              data:'',
-              list:[]
+              listSortIds: this.dataService || [],
             },
             search:{
               selectInput:'',
-            }
+            },
+            send:{
+              isGood:false,
+            },
+            controls:{
+              isSend: true,
+            },
+            maxView: [v => v.length <= 6 || 'Макимальное колличество символов 6'],
+            rulesLic: [v => (v.length >= 6 && v.length <= 13) || 'Макимальное колличество символов 13'],
+            isNotNull: [v => v.length != '' || 'Значение не должно быть пустым'],
           }
       },
       async created() {
@@ -311,74 +311,178 @@
           let jsonCookie = JSON.parse(cookies.dataCounter)
           this.counter.oldData = jsonCookie
         }
+
+        const date = new Date();
+        if(date.getDate() >= 1 && date.getDate() <= 25){
+          this.controls.isSend = false;
+        }
       },
       methods:{
-        searchService(e) {
-          //Поиск услгу
-          //
+        closeModal(){
+            this.$emit('closeModal', false)
         },
-        async openService(){
+        closeModalService(){
+          //Открытие выбора услуги
+          this.service.modal = false;
+        },
+        openService(){
           //Открытие выбора услуги
           this.service.modal = true
-
-          let request = await this.handlerAxios('get', 'v1/auth/organization')
-
-          if(request.status != true){
-            return false
-          }
-
-          this.service.list = request.data.content
         },
-        selectService(e){
-          //Выбор услуги в модалке
-          let isVisibleType = false;
+        dublicateService(id){
+          //Дублируем счетчик с улоугой в показаниях
+          const idIndex = this.counter.forms.findIndex(item => item.id == id)
 
-
-          //Проверка были ли выбрана услуга
-          if(this.service.data == ''){
-            this.service.data = '';
-            alert('Выберите услугу')
-            return false;
-          }
-
-          //Определяем тип услуги и показывать ли варианты счетчиков
-          switch (this.service.data.code) {
-            case 'plumbing':
-              isVisibleType = true;
-              break;
-          }
-
-          //Находим первую свободную ячейку
           let itemFormIndex = this.counter.forms.findIndex(item => item.isHidden == true)
 
-          //Если ячейки все заняты
           if(itemFormIndex == -1){
             this.service.data = ''
-            alert('Все ячейки заполены')
+            this.$messagesError("Все ячейки заполены");
             this.closeSelectService()
             return false
           }
 
-          //Получаем все данные по выбраной услуги
-          let itemService = this.service.list.find(item => item.MunicipalResource.code === this.service.data.code)
 
+          this.counter.forms[itemFormIndex].titleForm = this.counter.forms[idIndex].titleForm
+          this.counter.forms[itemFormIndex].type = this.counter.forms[idIndex].type
+          this.counter.forms[itemFormIndex].types = this.counter.forms[idIndex].types
+          this.counter.forms[itemFormIndex].licNumber = this.counter.forms[idIndex].licNumber
+          this.counter.forms[itemFormIndex].thisView = this.counter.forms[idIndex].thisView
+          this.counter.forms[itemFormIndex].comment = this.counter.forms[idIndex].comment
+          this.counter.forms[itemFormIndex].email = this.counter.forms[idIndex].email
+          this.counter.forms[itemFormIndex].inn = this.counter.forms[idIndex].inn
+          this.counter.forms[itemFormIndex].isType = this.counter.forms[idIndex].isType
+          this.counter.forms[itemFormIndex].isHidden = this.counter.forms[idIndex].isHidden
+
+        },
+        recoveryCounter(){
+          //Востанваливаем данные из кукие и заполняем форму показаний
+          for(let index = 0; index < this.counter.oldData.length; index++){
+            this.counter.forms[index].titleForm = this.counter.oldData[index].titleForm
+            this.counter.forms[index].licNumber = this.counter.oldData[index].licNumber
+            this.counter.forms[index].email = this.counter.oldData[index].email
+            this.counter.forms[index].isHidden = this.counter.oldData[index].isHidden
+            this.counter.forms[index].isType = this.counter.oldData[index].isType
+            this.counter.forms[index].type = this.counter.oldData[index].type
+            this.counter.forms[index].types = this.counter.oldData[index].types
+          }
+        },
+        async sendCounter(){
+          //Отправка показанй
+          try {
+            let isValid = false;
+            //Проверка на заполнение данных
+            this.counter.forms.forEach(item => {
+              if(item.isHidden != true){
+                if(item.type === ''){
+                  this.$messagesError('Выберите тип счетчика');
+                  isValid = false;
+                  return false;
+                }
+
+                if(item.thisView.length > 6 ){
+                  this.$messagesError('Укажите правильные показания');
+                  isValid = false;
+                  return false;
+                }
+                if(item.licNumber.length < 6 || item.licNumber.length > 13){
+                  this.$messagesError('Укажите правильный лицевой счет');
+                  isValid = false;
+                  return false;
+                }
+                isValid = true;
+              }
+
+            })
+
+
+            const token = await this.$recaptcha.getResponse()
+            if(token && isValid){
+              if(this.counter.forms[0].email === ''){
+                this.$messagesSuccess('Вы не заполнили данные');
+                return false;
+              }
+              let formData = {
+                data: this.counter.forms.filter(item => item.isHidden != true),
+                fromEmail: this.counter.fromEmail
+              }
+
+              let request = await this.handlerAxios('post', 'v1/sendCounter/' , formData)
+
+              if(request.status != true){
+                return false;
+              }
+
+              //Открытие модалки об успешной отправки формы
+              this.send.isGood = true;
+              setTimeout(() => {
+                this.send.isGood = false;
+              }, 10000)
+
+              //Сохраняем данные в cookie
+              let arrCookie = [];
+              formData.data.forEach(item => {
+
+                let itemArr = {
+                  titleForm:item.titleForm,
+                  licNumber: item.licNumber,
+                  email: item.email,
+                  isType: item.isType,
+                  isHidden: item.isHidden,
+                  type: item.type,
+                  types: item.types,
+                }
+                arrCookie.push(itemArr)
+
+              })
+
+              Cookies.set('dataCounter', JSON.stringify(arrCookie));
+
+              //Удаляем счетчики
+              this.counter.forms.forEach(item => {
+                item.type = ''
+                item.licNumber = ''
+                item.thisView = 0
+                item.comment = ''
+                item.email = ''
+                item.inn = ''
+                item.isType = false
+                item.isHidden = true
+                item.titleForm = ''
+              })
+              this.counter.fromEmail = ''
+
+              this.counter.modal = false
+
+              await this.$recaptcha.reset()
+            }
+
+            //send token to server alongside your form data
+
+          } catch (error) {
+            this.$messagesError('Произошла ошибка, провертье правильность заполнения полей');
+            console.log(error)
+          }
+
+
+        },
+        selectService(itemData){
+          //Когда выбрана услуга
+          let itemFormIndex = this.counter.forms.findIndex(item => item.isHidden == true)
+
+          //Если ячейки все заняты
+          if(itemFormIndex == -1){
+            this.$messagesError("Все ячейки заполены");
+            return false
+          }
 
           //Заполняем данные по счетчику
-          this.counter.forms[itemFormIndex].isType = isVisibleType;
-          this.counter.forms[itemFormIndex].titleForm = itemService.shortName;
-          this.counter.forms[itemFormIndex].email = itemService.email;
-          this.counter.forms[itemFormIndex].inn = itemService.inn;
+          this.counter.forms[itemFormIndex].types = itemData.data.municipalResource.length > 0 ?  itemData.data.municipalResource : itemData.resources
+          this.counter.forms[itemFormIndex].isType = true
+          this.counter.forms[itemFormIndex].titleForm = itemData.data.shortName;
+          this.counter.forms[itemFormIndex].email = itemData.data.email;
+          this.counter.forms[itemFormIndex].inn = itemData.data.inn;
           this.counter.forms[itemFormIndex].isHidden = false;
-          console.log(isVisibleType, this.counter.forms[itemFormIndex]);
-
-
-          this.closeSelectService()
-          this.service.data = ''
-        },
-        closeSelectService(){
-          //Закрытие модалки выбора услуги
-          this.service.modal = false
-          this.service.data = ''
         },
         deleteService(id){
           //Удаление счетчика с услугой
@@ -393,91 +497,7 @@
           this.counter.forms[idIndex].isHidden = true
           this.counter.forms[idIndex].titleForm = ''
         },
-        dublicateService(id){
-          //Дублируем счетчик с улоугой в показаниях
-          const idIndex = this.counter.forms.findIndex(item => item.id == id)
-
-          let itemFormIndex = this.counter.forms.findIndex(item => item.isHidden == true)
-
-          if(itemFormIndex == -1){
-            this.service.data = ''
-            alert('Все ячейки заполены')
-            this.closeSelectService()
-            return false
-          }
-
-
-          this.counter.forms[itemFormIndex].titleForm = this.counter.forms[idIndex].titleForm
-          this.counter.forms[itemFormIndex].type = this.counter.forms[idIndex].type
-          this.counter.forms[itemFormIndex].licNumber = this.counter.forms[idIndex].licNumber
-          this.counter.forms[itemFormIndex].thisView = this.counter.forms[idIndex].thisView
-          this.counter.forms[itemFormIndex].comment = this.counter.forms[idIndex].comment
-          this.counter.forms[itemFormIndex].email = this.counter.forms[idIndex].email
-          this.counter.forms[itemFormIndex].inn = this.counter.forms[idIndex].inn
-          this.counter.forms[itemFormIndex].isType = this.counter.forms[idIndex].isType
-          this.counter.forms[itemFormIndex].isHidden = this.counter.forms[idIndex].isHidden
-
-          console.log(this.counter.forms)
-        },
-        async sendCounter(){
-          //Отправка показанй
-          console.log(this.counter.forms);
-          let formData = {
-            data: this.counter.forms.filter(item => item.isHidden != true),
-            fromEmail: this.counter.fromEmail
-          }
-
-          let request = await this.handlerAxios('post', 'v1/sendCounter/' , formData)
-
-          if(request.status != true){
-            return false;
-          }
-
-          //Сохраняем данные в cookie
-          let arrCookie = [];
-          formData.data.forEach(item => {
-
-            let itemArr = {
-              titleForm:item.titleForm,
-              licNumber: item.licNumber,
-              email: item.email,
-              isType: item.isType,
-              isHidden: item.isHidden
-            }
-            arrCookie.push(itemArr)
-
-          })
-
-          Cookies.set('dataCounter', JSON.stringify(arrCookie));
-
-          //Удаляем счетчики
-          this.counter.forms.forEach(item => {
-            item.type = ''
-            item.licNumber = ''
-            item.thisView = 0
-            item.comment = ''
-            item.email = ''
-            item.inn = ''
-            item.isType = false
-            item.isHidden = true
-            item.titleForm = ''
-          })
-          this.counter.fromEmail = ''
-
-          this.counter.modal = false
-
-        },
-        recoveryCounter(){
-          //Востанваливаем данные из кукие и заполняем форму показаний
-          for(let index = 0; index < this.counter.oldData.length; index++){
-            this.counter.forms[index].titleForm = this.counter.oldData[index].titleForm
-            this.counter.forms[index].licNumber = this.counter.oldData[index].licNumber
-            this.counter.forms[index].email = this.counter.oldData[index].email
-            this.counter.forms[index].isHidden = this.counter.oldData[index].isHidden
-            this.counter.forms[index].isType = this.counter.oldData[index].isType
-          }
-        }
-      }
+      },
     }
 </script>
 
@@ -503,7 +523,7 @@
       "noSearch": "Ничего не найдено",
       "liveSearch": "Живой поиск",
       "checkName": "Поиск по УК",
-      "modalCountTitle": "Подать показания счетчиков",
+      "modalCountTitle": "Подать показания счетчиков, показания принимаются с 20 по 25 числа",
       "modalCountSend":"Отправить",
       "modalCountRecovery":"Восстановить прошлые данные",
       "modalCountItemTitle":"Добавить счетчик",
@@ -566,8 +586,23 @@
 </i18n>
 
 <style lang="scss" scoped>
+  .modalIsGood{
+    .v-card__title{
+      font-weight: 300;
+    }
+    .v-card__text{
+      font-size: 1em;
+    }
+  }
+
   .v-btn:not(.v-btn--round).v-size--default{
     width: auto;
+  }
+  .modal{
+    .v-card__title{
+      font-size: 30px;
+      font-weight: 300;
+    }
   }
   .formCounter{
     margin-bottom: 20px;
@@ -589,7 +624,7 @@
   .counter_pages{
     &__content{
       .v-card{
-        box-shadow: none;
+        box-shadow: none !important;
       }
       .modal__bottom{
         padding: 20px 30px;
@@ -632,7 +667,9 @@
             -ms-transition: .4s;
             -o-transition: .4s;
             transition: .4s;
-
+            &:nth-child(3n){
+              border-right: none;
+            }
             &:active{
               background-color: #E6F2FF;
             }
@@ -640,7 +677,7 @@
         }
       }
       .text{
-        padding: 55px 0;
+        padding: 55px 10px;
         &:hover{
           background-color: #F2F8FF;
         }
@@ -671,7 +708,33 @@
       }
     }
   }
+  .modalService{
+
+    input{
+      height: 26px !important;
+    }
+    ul{
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      column-count: 4;
+      margin-top: 30px;
+      li{
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: .4s all;
+        &:hover{
+          color: #0079FE;
+        }
+      }
+    }
+  }
   @media screen and (max-width: 650px){
+    .modalIsGood .v-card__text{
+      font-size: 1.3em;
+    }
     .counter_pages__actions{
       flex-wrap: wrap;
       display: flex;

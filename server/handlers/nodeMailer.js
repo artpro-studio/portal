@@ -12,8 +12,8 @@ const sendMailer = async (toMails, subject, htmlMessage) => {
     port: 465,
     secure: true, // true for 465, false for other ports
     auth: {
-      user: 'test@mail.ru', // generated ethereal user
-      pass: 'testtest', // generated ethereal password
+      user: 'meter@portaljkh.ru', // generated ethereal user
+      pass: 'portalJKH@GADmin', // generated ethereal password
     },
   });
 
@@ -21,16 +21,17 @@ const sendMailer = async (toMails, subject, htmlMessage) => {
   let info = await transporter.sendMail({
     from: 'meter@portaljkh.ru', // откого будем отправлять
     to: toMails, // передать строку почт через ,
+    //to: 'ya.andreyi96@yandex.ru', // передать строку почт через ,
     subject: subject, // Тема письма
     //text: "Hello world?", // Текст письма
     html: htmlMessage, // Текст письмаы html
   });
 
-  console.log("Message sent: %s", info.messageId);
+  //console.log("Message sent: %s", info.messageId);
   // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 
   // Preview only available when sending through an Ethereal account
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  //console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
   // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
 }
 

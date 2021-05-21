@@ -6,26 +6,32 @@
         <p>{{$t('description')}}</p>
       </div>
       <div class="search_home__info">
-        <a href="mailto:info@portal-jkh.ru" v-if="isChecked != 'true'"><span>{{$t('infoText')}}</span><img src="/img/default/mail.svg" alt="">info@portal-jkh.ru</a>
-        <v-switch
-          v-model="typePage"
-          :label="$t('checkName')"
-          color="info"
-          @change="swichHandler"
-          v-if="isChecked != 'false'"
-        ></v-switch>
+        <a href="mailto:info@portal-jkh.ru" class="search_home_mail" v-if="isChecked != 'true'"><span>{{$t('infoText')}}</span><img src="/img/default/mail.svg" alt="">info@portal-jkh.ru</a>
+        <div class="switcherItem"  v-if="isChecked != 'false'">
+          <p @click="typePage = !typePage">Поиск: Адресов</p>
+          <v-switch
+            v-model="typePage"
+            :label="$t('checkName')"
+            class="liveSearchAddress"
+            color="info"
+            @change="swichHandler"
+            v-if="isChecked != 'false'"
+          ></v-switch>
+        </div>
+
       </div>
     </div>
     <div class="search_home__content">
-      <v-form v-if="search.isSettings != true" class="fullSearch">
+      <v-form v-if="search.isSettings != true" class="fullSearch" @submit="liveSend" ref="searchForm">
         <v-container>
           <v-row>
             <v-col cols="12">
               <v-combobox
                 v-model="search.input"
                 class="liveSearch"
-                @keydown="liveSearch($event)"
-                :label="$t('inputSearch')"
+                @keyup="liveSearch($event)"
+                @change="liveChange($event)"
+                :label="search.label"
                 :items="search.dataLive"
                 no-data-text="Ничего не найдео"
                 item-value="guid"
@@ -45,10 +51,10 @@
             <v-btn
               class="icon_btn"
               color="primary"
-              @click="openModelCounter"
+              @click="counter.modal = true"
               x-small
               text
-              v-if="isChecked != 'false'"
+              v-if="isChecked != 'false' && typePage != true && this.search.input"
             ><v-icon>mdi-plus</v-icon> {{$t('countName')}}</v-btn>
 
             <v-btn
@@ -67,25 +73,29 @@
               @click="toggleSearch"
               text
             >
-              {{$t('settingsName')}}
+             {{$t('settingsName')}}
             </v-btn>
 
             <v-btn
+              :disabled="controlButton.liveButton"
               color="primary"
               class="btn_search"
-              @click="liveSend"
+              @click.prevent="liveSend"
+              type="submit"
+
             >
-              {{$t('buttonName')}}
+             <span v-if="typePage != true">{{$t('buttonName')}}</span>
+             <span v-if="typePage != false">{{$t('buttonNameOrg')}}</span>
             </v-btn>
 
           </v-card-actions>
         </v-row>
       </v-form>
 
-      <v-form v-if="search.isSettings == true">
+      <v-form v-if="search.isSettings == true" class="formParams" @submit="sendParams(true)">
         <v-container>
           <v-row>
-            <v-col cols="12" md="3" sm="6">
+            <v-col cols="12" md="2" sm="6">
               <v-select
                 v-model="search.settings.region"
                 :items="search.regionList"
@@ -105,7 +115,7 @@
                 </template>
               </v-select>
             </v-col>
-            <v-col cols="12" md="2" sm="6">
+            <v-col cols="12" md="3" sm="6">
               <v-select
                 v-model="search.settings.area"
                 :items="search.areaList"
@@ -128,7 +138,7 @@
                 </template>
               </v-select>
             </v-col>
-            <v-col cols="12" md="3" sm="6" >
+            <v-col cols="12" md="2" sm="6" >
               <v-select
                 v-model="search.settings.city"
                 :items="search.cityList"
@@ -168,7 +178,7 @@
                 </template>
               </v-select>
             </v-col>
-            <v-col cols="12" md="1" sm="4">
+            <v-col cols="12" md="2" sm="4">
               <v-select
                 v-model="search.settings.home"
                 :items="search.homeList"
@@ -198,7 +208,7 @@
               @click="counter.modal = true"
               x-small
               text
-              v-if="isChecked != 'false'"
+              v-if="isChecked != 'false' && typePage != true"
             ><v-icon>mdi-plus</v-icon> {{$t('countName')}}</v-btn>
             <v-btn
               color="primary"
@@ -213,14 +223,16 @@
               class="btn_toggle"
               text
             >
-              {{$t('liveSearch')}}
+             {{$t('liveSearch')}}
             </v-btn>
             <v-btn
               color="primary"
               class="btn_search"
-              @click="sendParams(true)"
+              @click.prevent="sendParams(true)"
+              :disabled="controlButton.paramsButton"
             >
-              {{$t('buttonName')}}
+              <span v-if="typePage != true">{{$t('buttonName')}}</span>
+              <span v-if="typePage != false">{{$t('buttonNameOrg')}}</span>
             </v-btn>
           </v-card-actions>
         </v-row>
@@ -236,337 +248,68 @@
       v-model="counter.modal"
       max-width="1300"
     >
-      <v-card>
-        <div class="modal__top">
-          <div class="top__text">
-            <v-card-title>
-              {{$t('modalCountTitle')}}
-            </v-card-title>
-
-            <v-card-text>
-              <b>Адрес:</b> г Чебоксары ул Радужная д 4 кв 613
-            </v-card-text>
-          </div>
-
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-              color="primary"
-              class="recoveryCounter"
-              @click="recoveryCounter"
-              v-if="counter.oldData.length > 0"
-              text
-            >{{$t('modalCountRecovery')}}</v-btn>
-            <v-btn
-              color="primary"
-              class="sendModal"
-              @click="sendCounter"
-            >
-              {{$t('modalCountSend')}}
-            </v-btn>
-            <v-btn
-              color="primary darken-1"
-              class="closeModal"
-              text
-              @click="counter.modal = false"
-            >
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
-          </v-card-actions>
-        </div>
-
-        <v-form class="formCounter">
-          <v-container>
-            <v-row>
-              <v-col cols="12" md="4" v-for="item in counter.forms" :key="item.id">
-
-                <div class="text" @click="openService" v-if="item.isHidden == true">
-                  <v-icon>mdi-plus</v-icon>
-                  <h4>{{$t('modalCountItemTitle')}}</h4>
-                  <p>{{$t('modalCountItemDesc')}}</p>
-                </div>
-
-                <v-form v-if="item.isHidden != true" class="formCounter">
-                  <v-row class="formCounter__top" align="center">
-                    <v-col cols="6">
-                      <v-list-item-title>{{ item.titleForm }}</v-list-item-title>
-                    </v-col>
-                    <v-col cols="6">
-                      <v-card-actions>
-                        <v-btn
-                          color="primary darken-1"
-                          text
-                          @click="dublicateService(item.id)"
-                        >
-                          {{$t('modalCountItemCopy')}}
-                        </v-btn>
-                        <v-btn
-                          color="red"
-                          @click="deleteService(item.id)"
-                          text
-                        >
-                          {{$t('modalCountItemDelete')}}
-                        </v-btn>
-                      </v-card-actions>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-select
-                        v-model="item.type"
-                        :items="counter.types"
-                        v-if="item.isType != false"
-                        item-text="name"
-                        item-value="name"
-                        :label="$t('modalCountItemType')"
-                      ></v-select>
-                    </v-col>
-                    <v-col cols="6">
-                      <v-text-field
-                        v-model="item.licNumber"
-                        :label="$t('modalCountItemLic')"
-                        required
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="6">
-                      <v-text-field
-                        v-model="item.thisView"
-                        :label="$t('modalCountItemThisView')"
-                        required
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12">
-                      <v-text-field
-                        v-model="item.comment"
-                        :label="$t('modalCountItemComment')"
-                        required
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-
-                </v-form>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-form>
-        <div class="modal__footer">
-          <div class="modal__bottom">
-            <div class="top__text">
-              <v-card-title>
-                {{$t('modalCountEmailTitle')}}
-              </v-card-title>
-
-              <v-card-text>
-                {{$t('modalCountEmailDesc')}}
-              </v-card-text>
-            </div>
-          </div>
-          <v-form value>
-            <v-container>
-              <v-row>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="counter.fromEmail"
-                    :label="$t('modalCountEmailInput')"
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-form>
-        </div>
-
-      </v-card>
+      <sendCounter
+        :dataService="service.listSortIds"
+        :isModal="true"
+        @closeModal="closeModalCounter"
+      />
     </v-dialog>
 
 
-    <v-dialog
-      v-model="service.modal"
-      content-class="modal"
-      max-width="500"
-    >
-      <v-card>
-        <div class="modal__top">
-          <div class="top__text">
-            <v-card-title>{{$t('modalServiceTitle')}}</v-card-title>
-          </div>
-        </div>
 
-        <v-form class="modalService">
-          <v-container>
-            <v-row>
-              <v-col cols="12">
-                <v-select
-                  v-model="service.data"
-                  :items="service.list"
-                  attach
-                  :label="$t('modalServiceSelectText')"
-                  :no-data-text="$t('noSearch')"
-                  item-value="MunicipalResource"
-                  item-text="shortName"
-                >
-                  <template v-slot:prepend-item>
-                    <v-list-item>
-                      <v-list-item-content>
-                        <v-text-field v-model="search.selectInput" :placeholder="$t('placeholderName')" @input="searchRegionList"></v-text-field>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </template>
-                </v-select>
-              </v-col>
-            </v-row>
-          </v-container>
 
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-              color="primary darken-1"
-              text
-              @click="service.modal = false"
-            >
-              {{$t('modalServiceClose')}}
-            </v-btn>
-            <v-btn
-              color="primary"
-              @click="selectService"
-            >
-              {{$t('modalServiceSend')}}
-            </v-btn>
-          </v-card-actions>
-        </v-form>
+    <div class="preloader" v-if="preloader.modal">
+      <div class="preloader__content">
+        <img src="/preloader.svg" alt="Загрзука">
+        <h4>Пожалуйста подождите</h4>
+        <p>Данные загружаются</p>
+      </div>
+    </div>
 
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 <script>
   import Cookie from 'cookie'
   import Cookies from 'js-cookie'
   import handlerAxiosMixins from '~/mixins/hendlerAxios.mixins'
+  import serviceModal from "/components/default/components/portal/serviceModal";
+  import sendCounter from '/components/default/components/portal/counter'
 
   export default {
     props:['title', 'isChecked', 'data'],
     mixins:[handlerAxiosMixins],
+    components:{serviceModal, sendCounter},
     data(){
       return{
+        localRoute: this.$route.query,
+        preloader:{
+          modal:false,
+        },
         //Заголвок страницы
         pageText:{
           title: this.title ?? '',
         },
         controls:{
           //Настройки для полей
-          liveItemText: 'formattedAddress'
+          liveItemText: 'formattedAddress',
+          isSend: true,
         },
         //Какой тип поиска по адресу=false по огранизации=true
         typePage:false,
         //Данные по услугам
         service:{
-          modal:false,
-          data:'',
-          list:[]
+          listSortIds:[],
         },
         //Данные по счетчикам
         counter:{
           modal:false,
-          forms:[
-            {
-              id:0,
-              titleForm:'',
-              type: '',
-              licNumber: '',
-              thisView: 0,
-              comment:'',
-              email:'',
-              isType: false,
-              isHidden: true
-            },
-            {
-              id:1,
-              type: '',
-              licNumber: '',
-              thisView: 0,
-              comment:'',
-              email:'',
-              inn:'',
-              isType: false,
-              isHidden: true
-            },
-            {
-              id:2,
-              titleForm:'',
-              type: '',
-              licNumber: '',
-              thisView: 0,
-              comment:'',
-              email:'',
-              inn:'',
-              isType: false,
-              isHidden: true
-            },
-            {
-              id:3,
-              titleForm:'',
-              type: '',
-              licNumber: '',
-              thisView: 0,
-              comment:'',
-              email:'',
-              inn:'',
-              isType: false,
-              isHidden: true
-            },
-            {
-              id:4,
-              titleForm:'',
-              type: '',
-              licNumber: '',
-              thisView: 0,
-              comment:'',
-              email:'',
-              inn:'',
-              isType: false,
-              isHidden: true
-            },
-            {
-              id:5,
-              titleForm:'',
-              type: '',
-              licNumber: '',
-              thisView: 0,
-              comment:'',
-              email:'',
-              inn:'',
-              isType: false,
-              isHidden: true
-            },
-          ],
-          types:[
-            {
-              id: 0,
-              name: 'Горячая вода (сан)',
-            },
-            {
-              id: 1,
-              name: 'Холодная вода (сан)',
-            },
-            {
-              id: 1,
-              name: 'Холодная вода (кух)',
-            },
-            {
-              id: 1,
-              name: 'Холодная вода (кух)',
-            },
-          ],
-          fromEmail: '',
-          isOld:false,
-          oldData:[],
         },
         //Параметры поиска
         search:{
           dataLive:[],
           isSettings: false,
-          input:'',
+          label: this.$t('inputSearch'),
+          input: null,
           inputRegion:'',
           inputArea:'',
           inputCity:'',
@@ -592,10 +335,20 @@
           homeList: this.homeListAll || [],
         },
         dataContent: this.data || [],
-        setTimeoutReq: {}
+        setTimeoutReq: {},
+        send:{
+          isGood:false,
+        },
+        controlButton:{
+          liveButton: false,
+          paramsButton:false,
+        },
+        maxView: [v => v.length <= 6 || 'Макимальное колличество символов 6'],
+        rulesLic: [v => (v.length >= 6 && v.length <= 13) || 'Макимальное колличество символов 13'],
+        isNotNull: [v => v.length != '' || 'Значение не должно быть пустым'],
       }
     },
-    async created() {
+    async mounted() {
       const cookieStr = process.browser ? document.cookie : ''
       const cookies = Cookie.parse(cookieStr || '') || {};
 
@@ -608,48 +361,17 @@
       this.pageText.title = this.$t('titleAddress');
 
       try {
-        //Полчуние региона
-        let request = await this.handlerAxios('get', 'v1/address/region/')
-        this.search.regionListAll = request.data
-        this.search.regionList = request.data
+        this.createRouter();
 
-        //Если есть гет параметр на дом
-        if(this.$route.query.house){
-          let formData = {
-            guid: this.$route.query.house
-          }
-          request = await this.handlerAxios('post', 'v1/address/house-one/', formData)
-          this.$emit('liveSend', request.house)
-          return true;
-        }
-
-        //есть ли гет параметры по расширеным настройкам
-        if(this.$route.query.region){
-          let formData =  {
-            and:{
-              region: this.$route.query.region,
-              settlement: this.$route.query.city,
-              street: this.$route.query.street,
-            },
-          }
-          if(this.$route.query.area){
-            formData.or  = [{area: this.$route.query.area}, {city: this.$route.query.area}]
-          }
-
-
-          let request = await this.handlerAxios('post', 'v1/address/home', formData)
-
-          request.house.data = formData
-
-          this.$emit('sendParams', request.house)
-          return true;
-        }
       }catch (e) {
         console.log(e);
       }
 
     },
     methods:{
+      closeModalCounter(e){
+        this.counter.modal = e;
+      },
       filterCombo(){
         //Фильтр для live поиска
         return this.search.dataLive;
@@ -657,6 +379,9 @@
       async liveSearch(event){
         //Живой поиск
         try {
+          if(event.target.value === ''){
+            return true
+          }
           //Поиск по оргназиации
           if(this.typePage != false){
 
@@ -667,6 +392,10 @@
               }
               let request = await this.handlerAxios('post', 'v1/organization/live-search/', formData)
               if(request.status == true){
+                request.data.rows = request.data.rows.map(item => {
+                  item.shortName = item.shortName + ' - ' + item.orgAddress
+                  return item
+                })
                 this.search.dataLive = request.data.rows
               }
             }, 1000);
@@ -690,23 +419,39 @@
           console.log(e)
         }
       },
+      liveChange(){
+        document.querySelector('.fullSearch .btn_search ').focus()
+      },
       swichHandler(){
         //Переключение поиска по адресу или по огранизации
-        this.search.input = '';
-        this.search.dataLive = [];
+        this.$emit('switchHandler', this.typePage)
+
+        this.search.dataLive = []
+        for(let key in this.$route.query){
+          this.$route.query[key] = ''
+        }
+        document.querySelector('.fullSearch input').value = ''
 
         if(this.typePage != false){
           this.pageText.title = this.$t('titleCompany')
-          this.controls.liveItemText = 'fullName'
+          this.controls.liveItemText = 'shortName'
+          this.search.label = this.$t('inputSearchOrg')
+          this.$emit('clearData')
           return true
         }
-
+        this.$emit('clearData')
         this.pageText.title = this.$t('titleAddress')
         this.controls.liveItemText = 'formattedAddress'
+        this.search.label = this.$t('inputSearch')
+        this.search.input = '';
+        this.$route.query.house = '';
+        this.$route.query.organization = '';
+        //this.$refs.searchForm.inputs[0].value = '';
       },
       toggleSearch(){
         this.search.isSettings = !this.search.isSettings
         this.$emit('clearData')
+
       },
       async changeSettings(typeSelect){
         //Выбор select поиска
@@ -714,37 +459,82 @@
         try {
           switch (typeSelect) {
             case 'region':
+              this.search.settings.area = ''
+              this.search.settings.street = ''
+              this.search.settings.city = ''
+              this.search.settings.home = ''
+
+              if(!this.search.settings.region.aoGuid){
+                this.search.settings.region = ''
+                this.search.streetListAll = []
+                this.search.streetList = []
+                this.search.cityListAll = []
+                this.search.cityList = []
+                break;
+              }
               formData =  {
                 aoGuid: this.search.settings.region.aoGuid
               }
               request = await this.handlerAxios('post', 'v1/address/area', formData)
               //Записываем районы
+              request.area.unshift({name: '', guid: '', id:0})
               this.search.areaListAll = request.area;
               this.search.areaList = request.area;
               break;
+
             case 'area':
+              this.search.settings.street = ''
+              this.search.settings.city = ''
+              this.search.settings.home = ''
+              if(!this.search.settings.area.aoGuid){
+                this.search.settings.area = ''
+                this.search.streetListAll = []
+                this.search.streetList = []
+                this.search.cityListAll = []
+                this.search.cityList = []
+                this.search.homeListAll = []
+                this.search.homeList = []
+                break;
+              }
+
               formData =  {
                 aoGuid: this.search.settings.area.aoGuid
               }
               request = await this.handlerAxios('post', 'v1/address/city', formData)
               //Записываем населеный пункт
+              request.city.unshift({name: '', guid: '', id:0})
               this.search.cityListAll = request.city;
               this.search.cityList = request.city;
 
               //Записываем улицы
+              request.street.unshift({name: '', guid: '', id:0})
               this.search.streetListAll = request.street;
               this.search.streetList = request.street;
               break;
             case 'city':
+              this.search.settings.street = ''
+              this.search.settings.home = ''
+              if(!this.search.settings.city.aoGuid){
+                this.search.settings.city = ''
+                this.search.homeListAll = []
+                this.search.homeList = []
+                break;
+              }
               formData =  {
                 aoGuid: this.search.settings.city.aoGuid
               }
               request = await this.handlerAxios('post', 'v1/address/street', formData)
               //Записываем населеный пункт
+              request.street.unshift({name: '', guid: '', id:0})
               this.search.streetList = request.street;
               this.search.streetListAll = request.street;
               break;
             case 'street':
+              this.search.settings.home = ''
+              if(!this.search.settings.street.aoGuid){
+                this.search.settings.street = ''
+                break;
+              }
               formData =  {
                 and:{
                   region: this.search.settings.region.id,
@@ -754,16 +544,20 @@
                 or:[
                   {area: this.search.settings.area.id},
                   {city: this.search.settings.area.id}
-                ]
+                ],
+                limit: 100000
               }
               request = await this.handlerAxios('post', 'v1/address/home', formData)
-              this.search.homeListAll = request.house
-              this.search.homeList = request.house
+              request.house.rows.unshift({houseTextAddress: '', guid: '', id:0})
+              this.search.homeListAll = request.house.rows
+              this.search.homeList = request.house.rows
               //Записываем населеный пункт
               break;
             case 'home':
               break;
           }
+
+          document.querySelector('.formParams .btn_search ').focus()
         } catch (e) {
           console.log(e)
         }
@@ -817,25 +611,99 @@
       async liveSend(){
         //Оптравка живой поиск
         try{
+          let request = {}, formData = {}
+          this.controlButton.liveButton = true;
+          //Проверка пустая ли строка
+          if(!this.search.input.guid){
+            this.$messagesError("Заполните поле поиска");
+            this.controlButton.liveButton = false;
+            return false;
+          }
+
+          //Отправка огранзиаци
+          if(this.typePage != false){
+
+            let organizationGuid = this.search.input.guid
+
+            formData = {
+              guid: organizationGuid
+            }
+            let request = await this.handlerAxios('post', 'v1/organization-guid/', formData)
+            if(request.status != true){
+              return false;
+            }
+            this.$emit('liveSendOrganization', request.organization)
+            this.$router.push(`/portal/?organization=${organizationGuid}`)
+            this.controlButton.liveButton = false;
+
+            return true
+          }
+
+          //Отправка дома
           let houseGuid = this.search.input.guid
 
-          let formData = {
+          formData = {
             guid: houseGuid
           }
-          let request = await this.handlerAxios('post', 'v1/address/house-one/', formData)
+          request = await this.handlerAxios('post', 'v1/address/house-one/', formData)
           if(request.status == true){
             this.$emit('liveSend', request.house)
             this.$router.push(`/portal/?house=${houseGuid}`)
+            this.listOrganizations(request.house.resourceProvisionOrganizationList, request.house.managementOrganization)
+            this.controlButton.liveButton = false;
           }
         } catch (e) {
+          this.controlButton.liveButton = false;
           console.log(e)
         }
       },
       async sendParams(typeSetting){
         //Оптравка расширеные на стройки
         try{
+
           //Открытие новой страницы с параметрами по дому
           //Если расширеные настройки
+          this.controlButton.paramsButton = true;
+          if(this.typePage != false){
+            //Запрос по организациям
+            this.preloader.modal = true;
+            let formData =  {
+              and:{
+                region: this.search.settings.region.id,
+                settlement: this.search.settings.city.id,
+                street: this.search.settings.street.id,
+              },
+            }
+            if(this.search.settings.area.id){
+              formData.or  = [{area: this.search.settings.area.id}, {city: this.search.settings.area.id}]
+            }
+            let request = await this.handlerAxios('post', 'v1/organization-params/', formData)
+            if(request.status != true){
+              this.$messagesError("Произошла ошибка");
+              setTimeout(() => {
+                this.preloader.modal = false;
+              }, 2000)
+              return false
+            }
+            request.organizations.data = formData
+            this.$emit('sendParamsOrg', request.organizations)
+            this.controlButton.paramsButton = false;
+            setTimeout(() => {
+              this.preloader.modal = false;
+            }, 2000)
+            return true
+          }
+
+
+          //Если дом выбран
+          if(this.search.settings.home){
+            this.search.input = this.search.settings.home
+            this.liveSend();
+            this.controlButton.paramsButton = false;
+            return true;
+          }
+
+
           let formData =  {
             and:{
               region: this.search.settings.region.id,
@@ -869,8 +737,11 @@
 
             this.$emit('sendParams', request.house)
             this.$router.push(`/portal/${urlParams}`)
+            this.controlButton.paramsButton = false;
           }
+          this.controlButton.paramsButton = false;
         } catch (e) {
+          this.controlButton.paramsButton = false;
           console.log(e)
         }
       },
@@ -878,171 +749,109 @@
         //Скролл к карте
         document.getElementById("maps").scrollIntoView({block: "center", behavior: "smooth"})
       },
-      async openModelCounter(){
-        //Открытие модылки для показании счетчиков
-        this.counter.modal = true
-        let request = await this.handlerAxios('get', 'v1/auth/organization')
 
-        if(request.status != true){
-          return false
+      watchData(e){
+        if(this.$route.query.organization){
+          this.search.input = e.fullName
+          this.pageText.title = this.$t('titleCompany')
+          this.controls.liveItemText = 'fullName'
+          this.typePage = true
         }
-
-        this.service.list = request.data.content
       },
-      openService(){
-        //Открытие выбора услуги
-        this.service.modal = true
+
+      listOrganizations(data, org){
+        //Формирование списка доступных организаций по адресу
+        this.service.listSortIds = data.map(item => {
+          return item.id
+        })
+        this.service.listSortIds.push(org.id)
       },
-      selectService(e){
-        //Выбор услуги в модалке
-        let isVisibleType = false;
+      async createRouter(){
+        //Полчуние региона
+        let request = await this.handlerAxios('get', 'v1/address/region/')
+        this.search.regionListAll = request.data
+        this.search.regionList = request.data
 
-
-        //Проверка были ли выбрана услуга
-        if(this.service.data == ''){
-          this.service.data = '';
-          alert('Выберите услугу')
-          return false;
-        }
-
-        //Определяем тип услуги и показывать ли варианты счетчиков
-        switch (this.service.data.code) {
-            case 'plumbing':
-              isVisibleType = true;
-              break;
-        }
-
-        //Находим первую свободную ячейку
-        let itemFormIndex = this.counter.forms.findIndex(item => item.isHidden == true)
-
-        //Если ячейки все заняты
-        if(itemFormIndex == -1){
-          this.service.data = ''
-          alert('Все ячейки заполены')
-          this.closeSelectService()
-          return false
-        }
-
-        //Получаем все данные по выбраной услуги
-        let itemService = this.service.list.find(item => item.MunicipalResource.code === this.service.data.code)
-
-
-        //Заполняем данные по счетчику
-        this.counter.forms[itemFormIndex].isType = isVisibleType;
-        this.counter.forms[itemFormIndex].titleForm = itemService.shortName;
-        this.counter.forms[itemFormIndex].email = itemService.email;
-        this.counter.forms[itemFormIndex].inn = itemService.inn;
-        this.counter.forms[itemFormIndex].isHidden = false;
-        console.log(isVisibleType, this.counter.forms[itemFormIndex]);
-
-
-        this.closeSelectService()
-        this.service.data = ''
-      },
-      closeSelectService(){
-        //Закрытие модалки выбора услуги
-        this.service.modal = false
-        this.service.data = ''
-      },
-      deleteService(id){
-        //Удаление счетчика с услугой
-        const idIndex = this.counter.forms.findIndex(item => item.id == id)
-        this.counter.forms[idIndex].type = ''
-        this.counter.forms[idIndex].licNumber = ''
-        this.counter.forms[idIndex].thisView = 0
-        this.counter.forms[idIndex].comment = ''
-        this.counter.forms[idIndex].email = ''
-        this.counter.forms[idIndex].inn = ''
-        this.counter.forms[idIndex].isType = false
-        this.counter.forms[idIndex].isHidden = true
-        this.counter.forms[idIndex].titleForm = ''
-      },
-      dublicateService(id){
-        //Дублируем счетчик с улоугой в показаниях
-        const idIndex = this.counter.forms.findIndex(item => item.id == id)
-
-        let itemFormIndex = this.counter.forms.findIndex(item => item.isHidden == true)
-
-        if(itemFormIndex == -1){
-          this.service.data = ''
-          alert('Все ячейки заполены')
-          this.closeSelectService()
-          return false
-        }
-
-
-        this.counter.forms[itemFormIndex].titleForm = this.counter.forms[idIndex].titleForm
-        this.counter.forms[itemFormIndex].type = this.counter.forms[idIndex].type
-        this.counter.forms[itemFormIndex].licNumber = this.counter.forms[idIndex].licNumber
-        this.counter.forms[itemFormIndex].thisView = this.counter.forms[idIndex].thisView
-        this.counter.forms[itemFormIndex].comment = this.counter.forms[idIndex].comment
-        this.counter.forms[itemFormIndex].email = this.counter.forms[idIndex].email
-        this.counter.forms[itemFormIndex].inn = this.counter.forms[idIndex].inn
-        this.counter.forms[itemFormIndex].isType = this.counter.forms[idIndex].isType
-        this.counter.forms[itemFormIndex].isHidden = this.counter.forms[idIndex].isHidden
-
-        console.log(this.counter.forms)
-      },
-      async sendCounter(){
-        //Отправка показанй
-        console.log(this.counter.forms);
-        let formData = {
-          data: this.counter.forms.filter(item => item.isHidden != true),
-          fromEmail: this.counter.fromEmail
-        }
-
-        let request = await this.handlerAxios('post', 'v1/sendCounter/' , formData)
-
-        if(request.status != true){
-          return false;
-        }
-
-        //Сохраняем данные в cookie
-        let arrCookie = [];
-        formData.data.forEach(item => {
-
-          let itemArr = {
-            titleForm:item.titleForm,
-            licNumber: item.licNumber,
-            email: item.email,
-            isType: item.isType,
-            isHidden: item.isHidden
+        //Если есть гет параметр на дом
+        if(this.$route.query.house){
+          this.typePage = false;
+          let formData = {
+            guid: this.$route.query.house
           }
-          arrCookie.push(itemArr)
+          request = await this.handlerAxios('post', 'v1/address/house-one/', formData)
+          this.listOrganizations(request.house.resourceProvisionOrganizationList, request.house.managementOrganization)
+          this.$emit('liveSend', request.house)
+          this.search.input = request.house
+          this.search.dataLive = []
+          this.controls.liveItemText = 'formattedAddress'
+          console.log('this.search.input', this.search.input)
+          return true;
+        }
 
-        })
+        //Если есть гет параметр на организацию
+        if(this.$route.query.organization){
+          this.typePage = true
+          let formData = {
+            guid: this.$route.query.organization
+          }
+          request = await this.handlerAxios('post', 'v1/organization-guid/', formData)
+          this.search.dataLive = []
+          this.pageText.title = this.$t('titleCompany')
+          this.controls.liveItemText = 'fullName'
+          this.$emit('liveSendOrganization', request.organization)
+          this.search.input = request.organization
+          console.log('organization', request.organization)
+          console.log('this.search.input', this.search.input)
+          return true;
+        }
 
-        Cookies.set('dataCounter', JSON.stringify(arrCookie));
 
-        //Удаляем счетчики
-        this.counter.forms.forEach(item => {
-          item.type = ''
-          item.licNumber = ''
-          item.thisView = 0
-          item.comment = ''
-          item.email = ''
-          item.inn = ''
-          item.isType = false
-          item.isHidden = true
-          item.titleForm = ''
-        })
-        this.counter.fromEmail = ''
+        //есть ли гет параметры по расширеным настройкам
+        if(this.$route.query.region){
+          let formData =  {
+            and:{
+              region: this.$route.query.region,
+              settlement: this.$route.query.city,
+              street: this.$route.query.street,
+            },
+          }
+          if(this.$route.query.area){
+            formData.or  = [{area: this.$route.query.area}, {city: this.$route.query.area}]
+          }
 
-        this.counter.modal = false
 
+          let request = await this.handlerAxios('post', 'v1/address/home', formData)
+
+          request.house.data = formData
+
+          this.$emit('sendParams', request.house)
+          return true;
+        }
+
+        const date = new Date();
+        if(date.getDate() >= 1 && date.getDate() <= 25){
+          this.controls.isSend = false;
+        }
+      }
+    },
+    watch:{
+      typePage: function (e) {
+        this.swichHandler();
       },
-      recoveryCounter(){
-        //Востанваливаем данные из кукие и заполняем форму показаний
-        for(let index = 0; index < this.counter.oldData.length; index++){
-          this.counter.forms[index].titleForm = this.counter.oldData[index].titleForm
-          this.counter.forms[index].licNumber = this.counter.oldData[index].licNumber
-          this.counter.forms[index].email = this.counter.oldData[index].email
-          this.counter.forms[index].isHidden = this.counter.oldData[index].isHidden
-          this.counter.forms[index].isType = this.counter.oldData[index].isType
+      data: function (e) {
+        this.watchData(e)
+      },
+      async "$route.query.organization"() {
+        if(this.$route.query.organization){
+          this.createRouter();
         }
       },
-    },
-
+      async "$route.query.house"() {
+       if(this.$route.query.house){
+         this.createRouter();
+       }
+      },
+    }
   }
 </script>
 <i18n>
@@ -1053,19 +862,21 @@
       "description": "Заполните поля чтобы найти дом в нашей системе",
       "infoText": "Возникли вопросы?",
       "inputSearch": "Введите ваш адрес",
+      "inputSearchOrg": "Введите организацию",
       "region": "Регион",
-      "area": "Район или город ФЗ",
+      "area": "Район или город",
       "settlement": "Населеный пункт",
       "street": "Улица",
       "house": "Дом",
       "countName": "Подать показания счетчиков",
       "viewMap":"Посмотреть на карте",
       "settingsName": "Расширеный поиск",
-      "buttonName": "Найти свой дом",
+      "buttonName": "Перейти в карточку дома",
+      "buttonNameOrg": "Перейти в карточку организации",
       "placeholderName": "Поиск",
       "noSearch": "Ничего не найдено",
       "liveSearch": "Живой поиск",
-      "checkName": "Поиск по УК",
+      "checkName": "Организаций",
       "modalCountTitle": "Подать показания счетчиков",
       "modalCountSend":"Отправить",
       "modalCountRecovery":"Восстановить прошлые данные",
@@ -1091,6 +902,7 @@
       "description": "Пирĕн системăра çурт тупас тесе кашни йĕркине çырса тухăр",
       "infoText": "Ыйтусем тухсан çыхăнмалли",
       "inputSearch": "Хăвăр адреса çырăр",
+      "inputSearchOrg": "Организацие ҫырса ярӑр",
       "region": "Регион",
       "area": "Район е федераци пĕлтерĕшлĕ хула",
       "settlement": "Хула-ял",
@@ -1099,11 +911,12 @@
       "countName": " Счетчик кăтартнине памалли",
       "viewMap":"Карттă çинче пăхăр",
       "settingsName": "Хушма опцисем",
-      "buttonName": "Çурт тупмалли",
+      "buttonName": "Ҫурт карточкине куҫăр",
+      "buttonNameOrg": "Организаци карточкине куҫăр",
       "placeholderName": "Шырав",
       "noSearch": "Нимĕн те тупайман",
       "liveSearch": "Йăпăр-япăр шырав",
-      "checkName": "УК шыравӗ",
+      "checkName": "Организаций",
       "modalCountTitle": "Счетчик кăтартнине памалли",
       "modalCountSend":"Яр",
       "modalCountRecovery":"Иртнĕ даннăйсене тавăрмалли",
@@ -1127,9 +940,64 @@
 
 </i18n>
 <style lang="scss" scoped>
-
+  @keyframes preloader {
+    0%{
+      transform: rotate(0);
+    }
+    100%{
+      transform: rotate(100000deg);
+    }
+  }
+  .preloader{
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+    background-color: rgba(255,255,255,.95);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    img{
+      width: 100px;
+      height: 100px;
+      margin-bottom: 15px;
+      animation: preloader 400s linear;
+      animation-iteration-count: infinite;
+    }
+    h4{
+      color: #333333;
+      font-size: 1.7em;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    p{
+      color: #333333;
+      font-size: 1.2em;
+      font-weight: 100;
+    }
+  }
+  .modalCounter{
+    .captcha{
+      padding-left: 30px;
+    }
+  }
+  .modalIsGood{
+    .v-card__title{
+      font-weight: 300;
+    }
+    .v-card__text{
+      font-size: 1em;
+    }
+  }
   .search_home__content .v-card__actions{
     width: 100%;
+    button{
+      width: auto;
+    }
   }
   .icon_btn{
     color: #333 !important;
@@ -1153,6 +1021,18 @@
       width: 30px;
       height: 30px;
       margin-right: 10px;
+    }
+  }
+  .switcherItem{
+    display: flex;
+    align-items: center;
+    p{
+      margin-bottom: 0;
+      font-weight: normal;
+      font-size: 16px;
+      margin-right: 10px;
+      color: rgba(0, 0, 0, 0.6);
+      cursor: pointer;
     }
   }
   .modalService{
@@ -1307,10 +1187,24 @@
     }
   }
   @media screen and (max-width: 650px){
+    .preloader{
+      &__content{
+        img{
+          height: 70px;
+          width: 70px;
+        }
+      }
+    }
+    .modalIsGood .v-card__text{
+      font-size: 1.3em;
+    }
     .modal{
       margin: 0;
 
       &.modalCounter{
+        .captcha{
+          padding-left: 15px;
+        }
         .modal__top{
           padding-top: 60px;
         }

@@ -10,42 +10,45 @@
           <p>{{$t('pageDesc')}}</p>
         </div>
         <div class="home_service__content">
-          <nuxt-link :to="localePath('/jkh/')">
-            <span class="bg" style="background-image: url('/img/default/service/serice1.png')"></span>
-            <span class="text">
-              <span class="title">{{$t('lkTitle')}}</span>
-              <span class="desc">{{$t('lkDesc')}}</span>
-            </span>
-          </nuxt-link>
-          <nuxt-link :to="localePath('/epd/')">
-            <span class="bg" style="background-image: url('/img/default/service/service2.png')"></span>
-            <span class="text">
-              <span class="title">{{$t('epdTitle')}}</span>
-              <span class="desc">{{$t('epdDesc')}}</span>
-            </span>
-          </nuxt-link>
-          <nuxt-link :to="localePath('/portal/')">
+          <nuxt-link :to="localePath('/portal/')" class="there">
             <span class="bg" style="background-image: url('/img/default/service/service3.png')"></span>
             <span class="text">
               <span class="title">{{$t('portalTitle')}}</span>
               <span class="desc">{{$t('portalDesc')}}</span>
             </span>
           </nuxt-link>
-          <nuxt-link :to="localePath('/portal/send-counter/')" class="itemIblock">
+          <nuxt-link :to="localePath('/portal/send-counter/')" class="itemIblock four">
             <span class="bg"></span>
             <span class="text">
               <span class="title">{{$t('countTitle')}}</span>
               <span class="desc">{{$t('countDesc')}}</span>
             </span>
-            <span class="item_info">{{$t('countText')}}</span>
           </nuxt-link>
-          <nuxt-link :to="localePath('/report-portal/')">
+          <a href="https://www.chelife.ru/" target="_blank" class="five">
             <span class="bg" style="background-image: url('/img/default/service/service4.png')"></span>
             <span class="text">
               <span class="title">{{$t('reportTitle')}}</span>
               <span class="desc">{{$t('reportDesc')}}</span>
             </span>
+          </a>
+
+
+          <a href="https://lk.jkh-pay.ru/" class="one">
+            <span class="bg" style="background-image: url('/img/default/service/serice1.png')"></span>
+            <span class="text">
+              <span class="title">{{$t('lkTitle')}}</span>
+              <span class="desc">{{$t('lkDesc')}}</span>
+            </span>
+          </a>
+
+          <nuxt-link :to="localePath('/epd/')" class="two">
+            <span class="bg" style="background-image: url('/img/default/service/service2.png')"></span>
+            <span class="text">
+              <span class="title">{{$t('epdTitle')}}</span>
+              <span class="desc">{{$t('epdDesc')}}</span>
+            </span>
           </nuxt-link>
+
         </div>
       </div>
     </div>
@@ -56,6 +59,19 @@
   import searchForm from '@/components/default/components/home/search'
 
 export default {
+  head() {
+    return {
+      title: 'Портал - ЖКХ',
+      meta: [
+        // hid is used as unique identifier. Do not use `vmid` for it as it will not work
+        {
+          hid: 'description',
+          name: 'description',
+          content: 'Портал - ЖКХ'
+        }
+      ]
+    }
+  },
   data(){
     return{
 
@@ -74,15 +90,15 @@ export default {
       "pageDesc": "Выберите нужный вам сервис",
       "lkTitle": "Личный кабинет потребителя",
       "lkDesc": "Для физических лиц",
-      "epdTitle": "Единый платежный документ",
+      "epdTitle": "Личный кабинет поставщика",
       "epdDesc": "Для юридических лиц",
-      "portalTitle": "Информационный портал",
-      "portalDesc": "Для физических лиц",
+      "portalTitle": "Информационно-справочный портал",
+      "portalDesc": "Справочник жилого фонда, обслуживающих и ресурсоснабжающих организаций",
       "countTitle": "Показание счетчиков",
-      "countDesc": "Показание счетчиков",
-      "countText": "Показания собираются с 10-20 числа",
-      "reportTitle": "Отчетный порт",
-      "reportDesc": "Для юридических лиц"
+      "countDesc": "принимаются с 20-25 число месяца",
+      "countText": "",
+      "reportTitle": "Новости",
+      "reportDesc": "Портал chelife.ru"
     },
     "ch": {
       "pageTitle": "Пирĕн сервиссем",

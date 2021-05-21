@@ -2,7 +2,7 @@ const bodyParser = require('body-parser');
 const ApiError = require('../../handlers/apiError')
 const {handlerDataTable} = require('../../handlers/handlerDataApi')
 const { Nsi, Types, House } = require('../../models/house/index')
-const { Organization } = require('../../models/organization/index')
+const { Organization, Chart } = require('../../models/organization/index')
 const { OrganizationRoles, MunicipalResource } = require('../../models/organization/municipalResource')
 const csv = require('csv-parser')
 const fs = require('fs')
@@ -63,6 +63,10 @@ module.exports.ImportData = async (req, res, next) => {
         'model': Organization,
         'filename': 'export_org.csv'
       },
+      'chart': {
+        'model': Chart,
+        'filename': 'export_ReceptionHours.csv'
+      },
       'address': {
         'model': House,
         'filename': 'export_house.csv'
@@ -115,13 +119,60 @@ module.exports.ImportBindingData = async (req, res, next) => {
       });
   }
 
+  function parse_data_house_resource(filename, model, skip) {
+    let results = [];
+    fs.createReadStream(filename)
+      .pipe(csv({
+        separator: ';',
+        mapValues: ({ header, index, value }) => value === ''? null : value
+      }))
+      .on('data', (data) => results.push(data))
+      .on('end', async () => {
+        for (let item of results){
+          if (skip > 0){
+            skip--
+            continue
+          }
+          try{
+            let obj = await model.findOne({where: {id: item.id}});
+
+            if (!obj) {
+              continue
+            }
+
+            await obj.addResourceProvisionOrganizationList(item.resource_id)
+
+          } catch (e) {
+            console.log(e);
+            throw e
+          }
+      }
+      });
+  }
+
+
   //Импорт
   try {
+    const name = req.body['name']
     const skip = req.body['skip']
-    let filename = 'export_org_resource.csv'
-    let model = Organization
+    let choice = {
+      'org_resource': {
+        'model': Organization,
+        'filename': 'export_org_resource.csv',
+        'func': parse_data
+      },
+      'house_resource': {
+        'model': House,
+        'filename': 'export_resource_house.csv',
+        'func': parse_data_house_resource
+      }
+    }
 
-    await parse_data(filename, model, skip);
+    let filename = choice[name].filename
+    let model = choice[name].model
+    let func = choice[name].func
+
+    await func(filename, model, skip);
 
     res.json({status: true })
   } catch (e) {

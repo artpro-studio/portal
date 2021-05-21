@@ -1,35 +1,69 @@
 <template>
-    <div class="search_list" v-if="isParams">
-      <div class="page_info">
-        <p>Найдено адресов: <b>{{pageContent.count}}</b></p>
-      </div>
-      <div class="item" v-for="(item, index) in pageContent.rows" :key="item.id" :title="item.formattedAddress" @click="sendParams(item.guid)">
-        <div class="item__icon">
-          <img src="/img/default/pin.svg" title="Иконка" alt="Иконка">
+    <div class="search_list__body">
+      <div class="search_list" v-if="isParams == false && pageContent.rows.length > 0">
+        <div class="page_info">
+          <p>Найдено адресов: <b>{{pageContent.count}}</b></p>
         </div>
-        <div class="item__info">
-          <div class="item__title">
-            <h4>{{item.formattedAddress}}</h4>
+        <div class="item" v-for="(item, index) in pageContent.rows" :key="item.id" :title="item.formattedAddress" @click="sendParams(item.guid)">
+          <div class="item__icon">
+            <img src="/img/default/pin.svg" title="Иконка" alt="Иконка">
           </div>
-          <div class="item__description">
-            <p>Управляющая компания:  ООО УК “Управдом”</p>
-            <p>Вода:  АО “Водоканал”</p>
-            <p>Газ:  ООО “Газпром межрегионгаз Чебоксары”</p>
+          <div class="item__info">
+            <div class="item__title">
+              <h4>{{item.formattedAddress}}</h4>
+            </div>
+            <div class="item__description">
+              <p>Управляющая компания:  ООО УК “Управдом”</p>
+              <p>Вода:  АО “Водоканал”</p>
+              <p>Газ:  ООО “Газпром межрегионгаз Чебоксары”</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="pagination">
-        <v-pagination
-          v-model="page"
-          @input="pageNav"
-          :length="pageLength"
-          :total-visible="12"
-          circle
-        ></v-pagination>
-      </div>
+        <div class="pagination">
+          <v-pagination
+            v-model="page"
+            @input="pageNav"
+            :length="pageLength"
+            :total-visible="12"
+            circle
+          ></v-pagination>
+        </div>
 
+      </div>
+      <div class="search_list" v-if="isParams == true && pageContent.rows.length > 0">
+        <div class="page_info">
+          <p>Найдено организаций: <b>{{pageContent.count}}</b></p>
+        </div>
+        <div class="item" v-for="(item, index) in pageContent.rows" :key="item.id" :title="item.fullName" @click="sendParams(item.guid)">
+          <div class="item__icon">
+            <img src="/img/default/pin.svg" title="Иконка" alt="Иконка">
+          </div>
+          <div class="item__info">
+            <div class="item__title">
+              <h4>{{item.fullName}}</h4>
+            </div>
+            <div class="item__description">
+              <p>Телефон:  {{item.phone}}</p>
+              <p>Email:  {{item.email}}</p>
+              <p>Сайт:  {{item.url}}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pagination">
+          <v-pagination
+            v-model="page"
+            @input="pageNav"
+            :length="pageLength"
+            :total-visible="12"
+            circle
+          ></v-pagination>
+        </div>
+
+      </div>
     </div>
+
 </template>
 
 <script>
@@ -42,28 +76,53 @@
         return{
           page: 1,
           pageLength : 10,
-          pageContent: {},
+          pageContent: {
+            rows:[],
+          },
         }
       },
       methods:{
         async pageNav(e){
-          console.log(e, this.page)
+          if(this.isParams != true){
+            //Поиск адресов
+            this.pageContent.data.offset = this.page;
+            let request = await this.handlerAxios('post', 'v1/address/home', this.pageContent.data)
+            if(request.status == true){
+              this.pageContent.rows = request.house.rows
+            }
+            return true
+          }
+          //Поиск организаций
           this.pageContent.data.offset = this.page;
-          let request = await this.handlerAxios('post', 'v1/address/home', this.pageContent.data)
+          let request = await this.handlerAxios('post', 'v1/organization-params/', this.pageContent.data)
           if(request.status == true){
-            this.pageContent.rows = request.house.rows
+            this.pageContent.rows = request.organizations.rows
           }
         },
         async sendParams(guid){
-          //Оптравка выбор дома
           try{
+            if(this.isParams != true){
+              //Оптравка выбор дома
+              let formData = {
+                guid: guid
+              }
+              let request = await this.handlerAxios('post', 'v1/address/house-one/', formData)
+              if(request.status == true){
+                this.pageContent.rows = [];
+                this.$emit('sendParams', request.house)
+                this.$router.push(`/portal/?house=${guid}`)
+              }
+              return true
+            }
+            //Оптравка выбор организации
             let formData = {
               guid: guid
             }
-            let request = await this.handlerAxios('post', 'v1/address/house-one/', formData)
+            let request = await this.handlerAxios('post', 'v1/organization-guid/', formData)
             if(request.status == true){
-              this.$emit('sendParams', request.house)
-              this.$router.push(`/portal/?house=${guid}`)
+              this.pageContent.rows = [];
+              this.$emit('sendParamsOrg', request.organization)
+              this.$router.push(`/portal/?organization=${guid}`)
             }
           } catch (e) {
             console.log(e)
@@ -72,7 +131,6 @@
       },
       watch:{
         data: function (e) {
-          console.log('watch', e)
           this.pageContent = e;
           this.pageLength = Math.ceil(+e.count / 10)
           this.page = 1

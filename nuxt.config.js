@@ -16,7 +16,7 @@ module.exports = {
     host: '0.0.0.0' // default: localhost
   },
   head: {
-    titleTemplate: '%s - epd',
+    titleTemplate: '%s',
     title: 'epd',
     htmlAttrs: {
       lang: 'ru'
@@ -37,6 +37,7 @@ module.exports = {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    { src: '~/plugins/global', ssr: true },
     { src: '~/plugins/axios', ssr: true },
   ],
 
@@ -54,7 +55,25 @@ module.exports = {
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
     'nuxt-i18n',
+    '@nuxtjs/recaptcha',
+    [
+      '@nuxtjs/yandex-metrika',
+      {
+        id: '78259789',
+        webvisor: true,
+        clickmap:true,
+        // useCDN:false,
+        trackLinks:true,
+        accurateTrackBounce:true,
+      }
+    ],
   ],
+  recaptcha: {
+    /* reCAPTCHA options */
+    siteKey: '6LckzcgaAAAAAJcqJzv63zPjQPWt3n6vzPc8kJuB', //6LckzcgaAAAAAHf2PCgYcUHypHlMWPgXKuOj2bnc
+    language : 'Ru-ru',
+    version: 2,
+  },
   i18n: {
     detectBrowserLanguage: {
       useCookie: true,
@@ -107,7 +126,7 @@ module.exports = {
   build: {
   },
   env:{
-    baseUrl: !isDev ? 'https://portaljkh.ru/api' : 'http://192.168.99.1:3000/api', //process.env.baseUrl
+    baseUrl: !isDev ? 'https://portaljkh.ru/api' : 'http://localhost:3000/api', //process.env.baseUrl
     apiJWT: 'portralJkh super site',
   }
 }

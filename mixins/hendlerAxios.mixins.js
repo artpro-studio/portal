@@ -4,21 +4,27 @@ export default {
 
     handlerMessage(data){
       //В случае ошибки
-      console.log(data);
       if(data.status != true){
         if(data.message){
-          console.log(data.message)
+          if(Object.keys(data.message).length <= 0){
+            this.$messagesError('Произошла ошибка');
+            return false;
+          }
+          this.$messagesError(data.message);
           return false;
         }
-        console.log('Произошла ошибка')
+        this.$messagesError('Произошла ошибка');
         return false;
       }
       //В случае успешного
       if(data.message){
-        console.log(data.message)
+        if(Object.keys(data.message).length <= 0){
+          return false;
+        }
+        this.$messagesSuccess(data.message);
         return true;
       }
-      console.log('Прошло успешно')
+      //this.$messagesSuccess('Прошло успешно');
       return true
     },
     async handlerAxios(type, route, data){

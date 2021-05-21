@@ -1,9 +1,9 @@
 <template>
-  <header class="header">
+  <header class="header" :class="{fixed: fixed}">
     <div class="wrapper">
       <div class="header__content" v-if="!menu.modal">
 
-        <div class="logo">
+        <div class="logo" :class="{hiddenCircle: hiddenCircle}">
           <nuxt-link :to="localePath('/')">
             <i>
               <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -24,7 +24,7 @@
               </svg>
             </i>
             <span class="text">
-              <span class="title">Portal-JKH</span>
+              <span class="title">Портал-ЖКХ</span>
               <span class="desc">{{$t('logo')}}</span>
             </span>
           </nuxt-link>
@@ -81,7 +81,7 @@
                   </svg>
                 </i>
                 <span class="text">
-              <span class="title">Portal-JKH</span>
+              <span class="title">Портал-ЖКХ</span>
               <span class="desc">{{$t('logo')}}</span>
             </span>
               </nuxt-link>
@@ -202,6 +202,7 @@
 </template>
 <script>
   export default {
+    props:['fixed', 'hiddenCircle'],
     data(){
       return{
         menu:{
@@ -214,6 +215,11 @@
             },
             {
               title: '',
+              code:'count',
+              link:'/portal/send-counter/'
+            },
+            {
+              title: '',
               code:'lk',
               link:'/jkh/'
             },
@@ -222,22 +228,27 @@
               code:'epd',
               link:'/epd/'
             },
-            {
-              title: '',
-              code:'count',
-              link:'/portal/send-counter/'
-            },
-            {
-              title: '',
-              code:'report',
-              link:'/report-portal/'
-            },
           ],
         },
         logoText:''
       }
     },
     methods:{
+      handleScroll(){
+       let scrollTop = document.documentElement.scrollTop
+        if(scrollTop > 50){
+          document.querySelector('.header').classList.add('active')
+          return true;
+        }
+
+        document.querySelector('.header').classList.remove('active')
+      }
+    },
+    beforeMount : function () {
+      window.addEventListener('scroll', this.handleScroll);
+    },
+    destroyed: function () {
+      window.removeEventListener('scroll', this.handleScroll);
     },
   }
 </script>
@@ -245,9 +256,9 @@
   {
     "ru": {
       "logo": "Чувашская Республика",
-      "lk": "Личный кабинет",
-      "epd": "Единый платежный док",
-      "portal": "Информационый портал",
+      "lk": "Личный кабинет потребителя",
+      "epd": "Личный кабинет поставщика",
+      "portal": "Справочник",
       "count": "Показание счетчиков",
       "report": "Отчетный портал",
       "buttonPersonal": "Войти в кабинет"

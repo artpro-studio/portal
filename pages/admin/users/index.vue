@@ -145,7 +145,6 @@
 
         this.create.modal = false;
         this.users.content.push(request.data.content[0])
-        console.log('user', this.users.content)
       },
       async deleteUser(item){
         //Удаление пользователя

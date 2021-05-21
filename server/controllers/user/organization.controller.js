@@ -1,10 +1,12 @@
 const { MunicipalResource } = require ("../../models/organization/municipalResource");
-
-const { Organization } = require('../../models/organization/index')
+const Sequelize1 = require('sequelize')
+const sequelize = require('../../utils/database')
+const { Organization, Chart } = require('../../models/organization/index')
 const { Nsi, Types, House } = require('../../models/house/index')
 const bodyParser = require('body-parser');
 const ApiError = require('../../handlers/apiError')
-const {handlerDataTable} = require('../../handlers/handlerDataApi')
+const { Sequelize, QueryTypes, Op } = require("sequelize");
+const { handlerDataTable } = require('../../handlers/handlerDataApi')
 const { sendMailer } = require('../../handlers/nodeMailer')
 const { Op } = require("sequelize");
 
@@ -51,21 +53,31 @@ module.exports.searchOrganization = async (req, res, next) => {
   //Получение списка организаций c пагниацией и поиском
   try {
     let search = req.body.search.split(' ')
+    let ids = req.body.ids
     let offsetData = req.body.offset ? req.body.offset * 10 : 0
     let newSearch = search.map(item => {
       return item = '%' + item + '%'
     })
+    let whereObj = {}
+    if(ids){
+      whereObj = {
+        id: ids
+      }
+    }
+
     let filter = {} // Cобираем фильтр
     if(search != ""){
       filter = {
         fullName: {
           [Op.iLike]: { [Op.all]: newSearch}
         }
+
       }
     }
     let organization = await Organization.findAndCountAll({
       where:{
-        ...filter
+        ...filter,
+        ...whereObj
       },
       attributes: ['id','shortName','inn', 'url', 'email', 'orgAddress'],
       limit: 20,
@@ -192,15 +204,26 @@ module.exports.getOrganizationGUID = async (req, res, next) => {
   try {
     let data = req.body
 
-    const organization = await Organization.findOne({
-      where: data,
+    let organization = await Organization.findOne({
+      where: data
     })
+    const charts = await Chart.findAll({
+      where: {
+        chartOrganizationId: organization.id
+      },
+      order:[
+        ['dayOfWeek', 'ASC'],
+      ]
+    })
+    organization = JSON.parse(JSON.stringify(organization))
+    organization['ReceptionHours'] = charts.filter(item => item.type === 'ReceptionHours');
+    organization.OpeningHours = charts.filter(item => item.type === 'OpeningHours');
 
     let resources = await MunicipalResource.findAll({
       attributes:['id', 'name', 'code']
     })
 
-    res.status(200).json({organization, resources, status: true })
+    res.status(200).json({organization, resources,  status: true })
   }catch (e) {
     console.log(e)
     return next(ApiError.errorValidations('Ошибка'))
@@ -209,31 +232,126 @@ module.exports.getOrganizationGUID = async (req, res, next) => {
 
 module.exports.searchOrganizationParams = async (req, res, next) => {
   try {
-    let and = req.body.and
-    let or = req.body.or
-    const organizations= await Organization.findAndCountAll({
-      include: [
-{
-        model: House,
-        as: 'managementOrganization',
-        where: {
-          [Op.or]: or,
-          [Op.and]: and
-        }
-      }, 
-{
-        model: House,
-        as: 'municipulOrganization',
-        where: {
-          [Op.or]: or,
-          [Op.and]: and
-        }
-      }
-] 
-    })
-    // column House.OrganizationId does not exist
+    let and = req.body.and,
+        or = req.body.or,
+        intOffset = (req.body.offset || 0) * 10,
+        intLimit = 10;
 
-    res.status(200).json({status: true , organizations})
+    let query_template = {}
+
+
+    if (and != undefined) {
+      query_template[Op.and] = and
+    }
+
+    if (or != undefined) {
+      query_template[Op.or] = or
+    }
+    //Получение домов
+    // let queryRegion = and.region === undefined ? ''  : and.region
+    // let querySettlement = and.settlement === undefined ? 'manage.settlement=' + and.settlement : true
+    // let queryStreet = and.street === undefined ? '' : and.street
+    //
+    // let queryArea = or[0].area === undefined ? 'manage.area=' + or[0].area : true
+    // let queryCity = or[1].city === undefined ? 'manage.street=' + or[1].city : true
+
+
+    const count_organizations = await sequelize.query(
+      `
+        SELECT count(distinct org.id)
+        FROM public."Organizations" as org
+            LEFT JOIN public."Houses" as manage
+                on org.id = manage."managementOrganizationId"
+                and (
+                     ${and.region === undefined ? '' : 'manage.region=' + and.region }
+                     ${and.street === undefined ? '' : ' AND  manage.street=' + and.street }
+                     ${and.settlement === undefined ? '' : 'AND manage.settlement=' + and.settlement }
+                     ${!or ? '' : 'and ( manage.area=' + or[0].area + 'OR  manage.city=' + or[1].city + ')'}
+
+                )
+            LEFT JOIN public."Houses" as munic
+                on org.id = munic."municipalityOrganizationId"
+                and (
+
+                     ${and.region === undefined ? '' : 'munic.region=' + and.region }
+                     ${and.street === undefined ? '' : ' AND  munic.street=' + and.street }
+                     ${and.settlement === undefined ? '' : 'AND munic.settlement=' + and.settlement }
+                     ${!or ? '' : 'and ( munic.area=' + or[0].area + 'OR  munic.city=' + or[1].city + ')'}
+
+                )
+            LEFT JOIN public."House_Organization" as source
+                on org.id = source."OrganizationId"
+            LEFT JOIN public."Houses" as resource
+                on resource.id = source."HouseId"
+                and (
+                     ${and.region === undefined ? '' : 'resource.region=' + and.region }
+                     ${and.street === undefined ? '' : ' AND  resource.street=' + and.street }
+                     ${and.settlement === undefined ? '' : 'AND resource.settlement=' + and.settlement }
+                     ${!or ? '' : 'and ( resource.area=' + or[0].area + 'OR  resource.city=' + or[1].city + ')'}
+                )
+        where manage.id is not null
+          or munic.id is not null
+          or resource.id is not null
+      `,
+
+      {
+        type: QueryTypes.SELECT,
+        model: Organization,
+      }
+      );
+
+    const organizations = await sequelize.query(
+        `
+        SELECT distinct org."id", org."guid", org."fullName", org."phone", org."email", org."url"
+        FROM public."Organizations" as org
+            LEFT JOIN public."Houses" as manage
+                on org.id = manage."managementOrganizationId"
+                and (
+                     ${and.region === undefined ? '' : 'manage.region=' + and.region }
+                     ${and.street === undefined ? '' : ' AND  manage.street=' + and.street }
+                     ${and.settlement === undefined ? '' : 'AND manage.settlement=' + and.settlement }
+                     ${!or ? '' : 'and ( manage.area=' + or[0].area + 'OR  manage.city=' + or[1].city + ')'}
+
+                )
+            LEFT JOIN public."Houses" as munic
+                on org.id = munic."municipalityOrganizationId"
+                and (
+
+                     ${and.region === undefined ? '' : 'munic.region=' + and.region }
+                     ${and.street === undefined ? '' : ' AND  munic.street=' + and.street }
+                     ${and.settlement === undefined ? '' : 'AND munic.settlement=' + and.settlement }
+                     ${!or ? '' : 'and ( munic.area=' + or[0].area + 'OR  munic.city=' + or[1].city + ')'}
+
+                )
+            LEFT JOIN public."House_Organization" as source
+                on org.id = source."OrganizationId"
+            LEFT JOIN public."Houses" as resource
+                on resource.id = source."HouseId"
+                and (
+                     ${and.region === undefined ? '' : 'resource.region=' + and.region }
+                     ${and.street === undefined ? '' : ' AND  resource.street=' + and.street }
+                     ${and.settlement === undefined ? '' : 'AND resource.settlement=' + and.settlement }
+                     ${!or ? '' : 'and ( resource.area=' + or[0].area + 'OR  resource.city=' + or[1].city + ')'}
+                )
+        where manage.id is not null
+          or munic.id is not null
+          or resource.id is not null
+        OFFSET ${intOffset} LIMIT ${intLimit}
+      `,
+
+      {
+      type: QueryTypes.SELECT,
+      model: Organization,
+    });
+
+
+    res.status(200).json({
+      status: true,
+      organizations:{
+        count: count_organizations[0].dataValues.count,
+        rows: organizations
+      }
+    })
   }catch (e) {
     console.log(e)
     return next(ApiError.errorValidations('Ошибка'))

@@ -117,6 +117,42 @@ const Organization = sequelize.define('Organization', {
     comment:'Тип организации',
     // allowNull defaults to true
   },
+  organizationTypeName: {
+    type: DataTypes.STRING(200),
+    allowNull: true,
+    comment:'Тип организации (название)',
+    // allowNull defaults to true
+  },
+  managementPost: {
+    type: DataTypes.STRING(200),
+    allowNull: true,
+    comment:'Тип организации (название)',
+    // allowNull defaults to true
+  },
+  okved: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+    comment:'Тип организации (название)',
+    // allowNull defaults to true
+  },
+  registrationDate: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment:'Дата регистрации',
+    // allowNull defaults to true
+  },
+  dispatcherPhones:{
+    type: DataTypes.STRING(100),
+    comment: 'Телефон диспетчера',
+  },
+  citizensReceptionPhones:{
+    type: DataTypes.STRING(100),
+    comment: 'Телефон приема граждан',
+  },
+  citizensReceptionLocation:{
+    type: DataTypes.STRING(1023),
+    comment: 'Адрес приема граждан',
+  },
 })
 
 module.exports.Organization = Organization
@@ -127,3 +163,64 @@ MunicipalResource.belongsToMany(Organization, { as: 'organization', through: 'Or
 
 Organization.belongsToMany(OrganizationRoles, { as: 'organizationRoles', through: 'Organization_OrganizationRoles' })
 OrganizationRoles.belongsToMany(Organization, { as: 'rolesOrganization', through: 'Organization_OrganizationRoles' })
+
+
+
+const Chart = sequelize.define('Chart', {
+  id: {
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    comment: 'id',
+  },
+  guid: {
+    type: DataTypes.STRING(36),
+    comment: 'guid',
+  },
+  dayOfWeek: {
+    type: DataTypes.INTEGER,
+    comment: 'День недели',
+  },
+  openHoursBegin: {
+    type: DataTypes.TIME,
+    comment: 'Время начала приема',
+  },
+  openHoursEnd: {
+    type: DataTypes.TIME,
+    comment: 'Время конца приема',
+  },
+  breakHoursBegin: {
+    type: DataTypes.TIME,
+    comment: 'Время начала перерыва',
+  },
+  breakHoursEnd: {
+    type: DataTypes.TIME,
+    comment: 'Время конца приема',
+  },
+  comment: {
+    type: DataTypes.STRING(1023),
+    comment: 'Комментарий',
+  },
+  type: {
+    type: DataTypes.STRING(15),
+    comment: 'Тип',
+  },
+})
+
+Organization.hasOne(Chart, {
+  foreignKey: 'chartOrganizationId',
+  name: 'chartOrganization',
+  as: 'chartOrganization',
+  comment:'Организация',
+  constraints: false
+})
+Chart.belongsTo(Organization,{
+  foreignKey: 'chartOrganizationId',
+  name: 'chartOrganization',
+  as: 'chartOrganization',
+  comment:'Организация',
+  constraints: false
+})
+
+module.exports.Chart = Chart

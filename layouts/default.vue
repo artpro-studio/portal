@@ -5,13 +5,14 @@
         <nuxt />
     </v-main>
     <footerDefault />
+    <Snackbar />
   </v-app>
 </template>
 
 <script>
   import headerDefault from '~/components/default/header'
   import footerDefault from '~/components/default/footer'
-
+  import Snackbar from '~/components/snackbar-main'
 
   import '/assets/scss/fonts.scss'
   export default {
@@ -23,7 +24,8 @@
     },
     components:{
       headerDefault,
-      footerDefault
+      footerDefault,
+      Snackbar
     }
   }
 </script>
@@ -70,6 +72,7 @@
     border: 1px solid #C4C4C4 !important;
     box-sizing: border-box !important;
     border-radius: 5px !important;
+    padding-right: 10px;
     &.v-input--is-label-active{
       label{
         top: 10px !important;
@@ -85,7 +88,7 @@
     padding: 3px 14px !important;
   }
   .v-input.v-text-field .v-label{
-    top: 0px !important;
+    top: 4px !important;
     left: 14px !important;
   }
   .v-input.v-text-field > .v-input__control > .v-input__slot:before{
@@ -130,6 +133,10 @@
     letter-spacing: 0px;
     font-weight: 100;
   }
+  .theme--light.v-btn.v-btn--disabled.v-btn--has-bg{
+    background-color: rgba(0, 121, 254, .5) !important;
+    color: #fff !important;
+  }
   .v-input.v-text-field{
     .v-input__slot{
       margin-bottom: 0;
@@ -139,14 +146,36 @@
     }
   }
   .modal{
+    background-color: #fff;
     .v-select .v-menu__content{
       max-width: 100% !important;
       min-width: 100% !important;
     }
+    &.modalCounter{
+      padding: 30px;
+    }
   }
+  input[type='number'] {
+    -moz-appearance:textfield;
+  }
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
   .v-select{
+    &__selections{
+      flex-wrap: nowrap !important;
+    }
     .v-select__selection--comma{
       margin: 7px 4px 7px 16px;
+    }
+    .v-input__control{
+      .v-select__slot{
+        .v-label{
+          top: 0 !important;
+        }
+      }
     }
     .v-list-item__content{
       padding: 0;
@@ -165,7 +194,7 @@
       padding: 0;
     }
     .v-input__append-inner{
-      margin-top: -1px;
+      margin-top: -1px !important;
     }
     .v-input__slot{
       margin-bottom: 0;
@@ -332,6 +361,9 @@
         }
       }
     }
+    .container{
+      width: 100% !important;
+    }
   }
   @media screen and (max-width: 650px){
     .modal{
@@ -360,6 +392,10 @@
         font-size: 14px;
       }
     }
+    .v-select.v-input.v-text-field.v-input--is-focused label {
+      top: 7px !important;
+      font-size: .8em !important;
+    }
     .theme--light.v-input{
       border: 1px solid #C4C4C4;
       box-sizing: border-box;
@@ -380,6 +416,15 @@
       font-size: 1.2em;
       width: 135px;
       height: 45px;
+    }
+    .v-autocomplete__content{
+      .v-list-item{
+        border-bottom: 1px rgba(0,0,0, .05) solid;
+      }
+      .v-list-item__title{
+        white-space: normal;
+        font-size: 1em;
+      }
     }
     .modalMenu{
       padding-top: 50px;
