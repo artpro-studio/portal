@@ -3,13 +3,13 @@
     <headerDefault :fixed="true" :hiddenCircle="true" />
     <nuxt />
     <footerDefault />
-    <Snackbar />
+    <SnackbarMain />
   </v-app>
 </template>
 <script>
-  import headerDefault from '/components/default/header'
-  import footerDefault from '/components/default/footer'
-  import Snackbar from  '~/components/snackbar-main'
+  import headerDefault from '/components/Default/DefaultHeader'
+  import footerDefault from '/components/Default/DefaultFooter'
+  import SnackbarMain from  '/components/SnackbarMain'
 
   import '/assets/scss/fonts.scss'
   export default {
@@ -22,7 +22,7 @@
     components:{
       headerDefault,
       footerDefault,
-      Snackbar
+      SnackbarMain
     }
   }
 </script>

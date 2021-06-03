@@ -259,22 +259,25 @@
   </div>
 </template>
 <script>
-  import AppAuthForm from '/components/personal/epd/home/auth'
-  import AppCallBack from '/components/personal/epd/home/callback'
-  import AppCallFooter from '/components/personal/epd/home/callFooter'
+  import AppAuthForm from '/components/Epd/Home/HomeAuthForm'
+  import AppCallBack from '/components/Epd/Home/HomeCallbackForm'
+  import AppCallFooter from '/components/Epd/Home/HomeCallFooter'
   export default {
     layout: 'landing',
     head() {
       return {
-        title: 'Единный платежный документ',
+        title: 'Личный кабинет постащика услуг и коммунальных ресурсов',
         meta: [
-          // hid is used as unique identifier. Do not use `vmid` for it as it will not work
           {
             hid: 'description',
             name: 'description',
-            content: 'Единный платежный документ'
+            content: 'Добавление и изменение информации об организации. Загрузка данных для формирования электронных квитанций ЖКХ. Формирование объединенного платежного документа. Выгрузка реестра показаний счетчиков.'
+          },
+          {
+            name: 'keywords',
+            content: 'электронная квитанця, реестр показаний счетчиков, информация об организации'
           }
-        ]
+        ],
       }
     },
     data(){

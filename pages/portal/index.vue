@@ -35,24 +35,27 @@
 </template>
 <script>
   import handlerAxiosMixins from '~/mixins/hendlerAxios.mixins'
-  import searchForm from '/components/default/components/home/search'
-  import searchContent from '/components/default/components/portal/searchContent'
-  import apiMaps from '/components/default/components/portal/maps'
-  import Search from "../../components/default/components/home/search";
-  import searchList from '/components/default/components/portal/searchList'
+  import searchForm from '/components/Default/Home/HomeSearchForm'
+  import searchContent from '/components/Default/Portal/SearchContent'
+  import apiMaps from '/components/Default/Portal/DefaultMaps'
+  import Search from "../../components/Default/Home/HomeSearchForm";
+  import searchList from '/components/Default/Portal/SearchList'
 
   export default {
     head() {
       return {
-        title: 'Справочник',
+        title: 'Информационно-справочный портал объектов ЖКХ Чувашии',
         meta: [
-          // hid is used as unique identifier. Do not use `vmid` for it as it will not work
           {
             hid: 'description',
             name: 'description',
-            content: 'Справочник'
+            content: 'Получить подробную информацию об объектах жилого фонда, об управляющих и ресурсоснабжающих организациях Чувашской Республики - Чувашия'
+          },
+          {
+            name: 'keywords',
+            content: 'справочник, жкх, дом, УК, управляющая компания, РСО, ресурсоснабжающая организация'
           }
-        ]
+        ],
       }
     },
     mixins:[handlerAxiosMixins],
@@ -92,6 +95,7 @@
       },
       sendParams(data){
         this.dataList = data || {}
+        console.log('sendParamsIndex', data)
         this.isParams = false
         this.dataSearch = {}
       },

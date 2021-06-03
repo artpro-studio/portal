@@ -1,22 +1,26 @@
 <template>
-  <div class="wrapper lk_page">
-    <Sidebar/>
-    <div class="lk_content">
-      <Header />
-      <nuxt />
+  <v-app>
+    <div class="lk_page">
+      <Sidebar/>
+      <div class="lk_content">
+        <Header />
+        <v-main>
+          <nuxt />
+        </v-main>
+      </div>
+      <SnackbarMain />
     </div>
-    <Snackbar />
-  </div>
+  </v-app>
 </template>
 
 <script>
-  import Sidebar from '/components/personal/epd/sidebar'
-  import Header from '/components/personal/epd/header'
-  import Snackbar from  '~/components/snackbar-main'
+  import Sidebar from '/components/Epd/EpdSidebar'
+  import Header from '/components/Epd/EpdHeader'
+  import SnackbarMain from  '/components/SnackbarMain'
 
   export default {
     components:{
-      Sidebar, Header, Snackbar
+      Sidebar, Header, SnackbarMain
     }
   }
 </script>
@@ -24,7 +28,9 @@
 <style lang="scss">
   body {
     background: rgba(0, 121, 254, 0.02); }
-
+  a{
+    text-decoration: none;
+  }
   .lk_page {
     display: -webkit-box;
     display: -webkit-flex;

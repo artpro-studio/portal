@@ -51,7 +51,7 @@ module.exports.sendCounter = async (req, res, next) => {
 
       })
 
-      request = sendMailer('ya.andreyi96@yandex.ru', 'Показание счетиков c portal-jkh.ru', messages)
+      request = sendMailer('ya.andreyi96@yandex.ru', 'Показание счетиков c Portal-jkh.ru', messages)
     }
 
     //Отправка клиенту если почта есть
@@ -65,7 +65,7 @@ module.exports.sendCounter = async (req, res, next) => {
 
       })
 
-      request = sendMailer(formData.fromEmail, 'Показание счетиков c portal-jkh.ru', items)
+      request = sendMailer(formData.fromEmail, 'Показание счетиков c Portal-jkh.ru', items)
 
     }
 

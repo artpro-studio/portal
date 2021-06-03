@@ -12,23 +12,24 @@ module.exports = {
   // Global page headers: https://go.nuxtjs.dev/config-head
   telemetry: false,
   server: {
-    port: 3000, // default: 3000
-    host: '0.0.0.0' // default: localhost
+    port: 3000, // Default: 3000
+    host: '0.0.0.0' // Default: localhost
   },
   head: {
     titleTemplate: '%s',
-    title: 'epd',
+    title: 'Epd',
     htmlAttrs: {
       lang: 'ru'
     },
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' }
+      { hid: 'description', name: 'description', content: '' },
+      { name: 'keywords', content: '' }
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
-    ]
+    ],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -126,7 +127,7 @@ module.exports = {
   build: {
   },
   env:{
-    baseUrl: !isDev ? 'https://portaljkh.ru/api' : 'http://localhost:3000/api', //process.env.baseUrl
+    baseUrl: !isDev ? 'https://portaljkh.ru/api' : 'http://192.168.99.1:3000/api', //process.env.baseUrl
     apiJWT: 'portralJkh super site',
   }
 }

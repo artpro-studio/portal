@@ -116,7 +116,7 @@
               {
                 icon: 'mdi-apps',
                 name: 'Организации',
-                to: '/admin/organizations'
+                to: '/admin/Organizations'
               },
               {
                 icon: 'mdi-apps',

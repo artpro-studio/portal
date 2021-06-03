@@ -8,8 +8,6 @@ const ApiError = require('../../handlers/apiError')
 const { Sequelize, QueryTypes, Op } = require("sequelize");
 const { handlerDataTable } = require('../../handlers/handlerDataApi')
 const { sendMailer } = require('../../handlers/nodeMailer')
-const { Op } = require("sequelize");
-
 module.exports.post = async (req, res, next) => {
   //Создание организации
   try {
@@ -59,7 +57,7 @@ module.exports.searchOrganization = async (req, res, next) => {
       return item = '%' + item + '%'
     })
     let whereObj = {}
-    if(ids){
+    if(ids.length > 0){
       whereObj = {
         id: ids
       }
@@ -176,7 +174,7 @@ module.exports.liveSearch = async (req, res, next) => {
   //Живой поиск по огранизациям
   try {
     if(req.body.search == ''){
-      return next(ApiError.errorValidations('Пустой массив'))
+      return next(ApiError.errorValidations('Пустая строка'))
     }
 
     let search = req.body.search.split(' ')
@@ -234,7 +232,7 @@ module.exports.searchOrganizationParams = async (req, res, next) => {
   try {
     let and = req.body.and,
         or = req.body.or,
-        intOffset = (req.body.offset || 0) * 10,
+        intOffset = (req.body.page || 0) * 10,
         intLimit = 10;
 
     let query_template = {}

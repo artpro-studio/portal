@@ -19,127 +19,106 @@ const Organization = sequelize.define('Organization', {
   shortName: {
     type: DataTypes.STRING(400),
     comment:'Сокращенное наименование',
-    // allowNull defaults to true
   },
   fullName: {
     type: DataTypes.STRING(400),
     allowNull: true,
     comment:'Полное наименование',
-    // allowNull defaults to true
   },
   ogrn: {
     type: DataTypes.STRING(20),
     allowNull: true,
     comment:'ОГРН',
-    // allowNull defaults to true
   },
   okfs: {
     type: DataTypes.STRING(300),
     allowNull: true,
     comment:'ОКФС',
-    // allowNull defaults to true
   },
   inn: {
     type: DataTypes.STRING(40),
     allowNull: true,
     comment:'ИНН',
-    // allowNull defaults to true
   },
   kpp: {
     type: DataTypes.STRING(40),
     allowNull: true,
     comment:'КПП',
-    // allowNull defaults to true
   },
   email: {
     type: DataTypes.STRING(50),
     allowNull: true,
     comment:'E-mail',
-    // allowNull defaults to true
   },
   url: {
     type: DataTypes.STRING(255),
     allowNull: true,
     comment:'Официальный сайт в сети Интернет',
-    // allowNull defaults to true
   },
   phone: {
     type: DataTypes.STRING(100),
     allowNull: true,
     comment:'Телефон',
-    // allowNull defaults to true
   },
   ogrnip: {
     type: DataTypes.STRING(30),
     allowNull: true,
     comment:'ОГРНИП',
-    // allowNull defaults to true
   },
   orgOid: {
     type: DataTypes.STRING(50),
     allowNull: true,
     comment:'orgOid',
-    // allowNull defaults to true
   },
   bankCode: {
     type: DataTypes.STRING(100),
     allowNull: true,
     comment:'Код банка',
-    // allowNull defaults to true
   },
   orgAddress: {
     type: DataTypes.STRING(1024),
     allowNull: true,
     comment:'Адрес организации',
-    // allowNull defaults to true
   },
   chiefLastName: {
     type: DataTypes.STRING(1024),
     allowNull: true,
     comment:'Фамилия директора',
-    // allowNull defaults to true
   },
   chiefFirstName: {
     type: DataTypes.STRING(1024),
     allowNull: true,
     comment:'Имя директора',
-    // allowNull defaults to true
   },
   chiefMiddleName: {
     type: DataTypes.STRING(1024),
     allowNull: true,
     comment:'Отчество директора',
-    // allowNull defaults to true
   },
   organizationType: {
     type: DataTypes.STRING(10),
     allowNull: true,
     comment:'Тип организации',
-    // allowNull defaults to true
   },
   organizationTypeName: {
     type: DataTypes.STRING(200),
     allowNull: true,
     comment:'Тип организации (название)',
-    // allowNull defaults to true
   },
   managementPost: {
     type: DataTypes.STRING(200),
     allowNull: true,
     comment:'Тип организации (название)',
-    // allowNull defaults to true
   },
   okved: {
     type: DataTypes.STRING(100),
     allowNull: true,
     comment:'Тип организации (название)',
-    // allowNull defaults to true
   },
   registrationDate: {
     type: DataTypes.DATE,
     allowNull: true,
     comment:'Дата регистрации',
-    // allowNull defaults to true
   },
   dispatcherPhones:{
     type: DataTypes.STRING(100),
@@ -152,6 +131,37 @@ const Organization = sequelize.define('Organization', {
   citizensReceptionLocation:{
     type: DataTypes.STRING(1023),
     comment: 'Адрес приема граждан',
+  },
+  sberCode: {
+    type: DataTypes.STRING(10),
+    allowNull: true,
+    comment:'Код в сбербанке',
+  },
+  sberName: {
+    type: DataTypes.STRING(40),
+    allowNull: true,
+    comment:'Код в сбербанке',
+  },
+  bik: {
+    type: DataTypes.STRING(10),
+    allowNull: true,
+    comment:'Код в сбербанке',
+  },
+  qr_code: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    comment:'QR-код',
+    default:'ST00011'
+  },
+  bar_code: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    comment:'BAR-код',
+  },
+  order: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    comment:'order',
   },
 })
 
@@ -207,6 +217,7 @@ const Chart = sequelize.define('Chart', {
     comment: 'Тип',
   },
 })
+
 
 Organization.hasOne(Chart, {
   foreignKey: 'chartOrganizationId',

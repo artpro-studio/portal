@@ -7,19 +7,22 @@
 </template>
 <script>
 
-  import sendCounter from '/components/default/components/portal/counter'
+  import sendCounter from '/components/Default/Portal/DefaultCounter'
   export default {
     head() {
       return {
-        title: 'Показание счетчиков',
+        title: 'Передача показаний счетчиков коммунальных ресурсов в УК и РСО',
         meta: [
-          // hid is used as unique identifier. Do not use `vmid` for it as it will not work
           {
             hid: 'description',
             name: 'description',
-            content: 'Показание счетчиков'
+            content: 'Передать показания счетчиков коммунальных ресурсов в адрес любой управляющией и ресурсоснабжающей организации Чувашской Республики'
+          },
+          {
+            name: 'keywords',
+            content: 'счетчики, показания, жкх, передать счетчик'
           }
-        ]
+        ],
       }
     },
     components:{

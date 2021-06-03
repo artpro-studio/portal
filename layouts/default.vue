@@ -1,18 +1,18 @@
 <template>
   <v-app :class="{ch: this.$store.state.user.language == 2}">
-    <headerDefault />
+    <DefaultHeader />
     <v-main>
         <nuxt />
     </v-main>
-    <footerDefault />
-    <Snackbar />
+    <DefaultFooter />
+    <SnackbarMain />
   </v-app>
 </template>
 
 <script>
-  import headerDefault from '~/components/default/header'
-  import footerDefault from '~/components/default/footer'
-  import Snackbar from '~/components/snackbar-main'
+  import DefaultHeader from '../components/Default/DefaultHeader'
+  import DefaultFooter from '../components/Default/DefaultFooter'
+  import SnackbarMain from '../components/SnackbarMain'
 
   import '/assets/scss/fonts.scss'
   export default {
@@ -23,9 +23,9 @@
       }
     },
     components:{
-      headerDefault,
-      footerDefault,
-      Snackbar
+      DefaultHeader,
+      DefaultFooter,
+      SnackbarMain
     }
   }
 </script>
@@ -126,6 +126,23 @@
     font-size: .9em !important;
     .v-btn__content{
       font-weight: 300;
+    }
+  }
+  .v-input--selection-controls__input .v-icon{
+    font-size: 1.2em !important;
+    width: 100% !important;
+  }
+  .checkboxList{
+    &__content{
+      .v-input--radio-group__input{
+        display: flex;
+        flex-direction: row;
+        .v-radio{
+          width: auto;
+          margin-bottom: 7px !important;
+          margin-right: 15px;
+        }
+      }
     }
   }
   .v-btn__content{
@@ -320,6 +337,14 @@
     }
   }
   /*END Меню*/
+  body .v-application .v-progress-circular{
+    width: 80px !important;
+    height: 80px !important;
+    svg{
+      width: 80px !important;
+      height: 80px !important;
+    }
+  }
 
   @media screen and (max-width: 1420px){
     .wrapper{
@@ -384,7 +409,7 @@
       font-size: 1.1em !important;
       .v-btn__content{
         font-weight: 300;
-        font-size: 1.2em;
+        font-size: 1.1em;
       }
     }
     .v-text-field{
@@ -413,7 +438,7 @@
       }
     }
     .v-btn:not(.v-btn--round).v-size--default{
-      font-size: 1.2em;
+      font-size: 1.1em;
       width: 135px;
       height: 45px;
     }

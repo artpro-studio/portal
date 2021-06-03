@@ -6,7 +6,7 @@ const sendMailer = async (toMails, subject, htmlMessage) => {
   // Only needed if you don't have a real mail account for testing
   let testAccount = await nodemailer.createTestAccount();
 
-  // create reusable transporter object using the default SMTP transport
+  // create reusable transporter object using the Default SMTP transport
   let transporter = nodemailer.createTransport({
     host: "smtp.yandex.ru",
     port: 465,

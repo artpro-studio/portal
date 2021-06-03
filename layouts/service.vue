@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <headerDefault />
+    <DefaultHeader />
     <v-main>
       <div class="services__pages">
        <div class="wrapper">
@@ -13,13 +13,13 @@
        </div>
       </div>
     </v-main>
-    <footerDefault classList="fixed" />
+    <DefaultFooter classList="fixed" />
   </v-app>
 </template>
 
 <script>
-  import headerDefault from '~/components/default/header'
-  import footerDefault from '~/components/default/footer'
+  import DefaultHeader from '~/components/Default/DefaultHeader'
+  import DefaultFooter from '~/components/Default/DefaultFooter'
 
 
   import '/assets/scss/fonts.scss'
@@ -31,8 +31,8 @@
       }
     },
     components:{
-      headerDefault,
-      footerDefault
+      DefaultHeader,
+      DefaultFooter
     }
   }
 </script>

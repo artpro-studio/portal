@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="container">
 
-      <searchForm title="Поиск по адресу" isChecked="false"/>
+      <HomeSearchFrom title="Поиск по адресу" isChecked="false"/>
 
       <div class="home_service">
         <div class="title__section">
@@ -10,14 +10,14 @@
           <p>{{$t('pageDesc')}}</p>
         </div>
         <div class="home_service__content">
-          <nuxt-link :to="localePath('/portal/')" class="there">
+          <nuxt-link :to="localePath('/Portal/')" class="there">
             <span class="bg" style="background-image: url('/img/default/service/service3.png')"></span>
             <span class="text">
               <span class="title">{{$t('portalTitle')}}</span>
               <span class="desc">{{$t('portalDesc')}}</span>
             </span>
           </nuxt-link>
-          <nuxt-link :to="localePath('/portal/send-counter/')" class="itemIblock four">
+          <nuxt-link :to="localePath('/Portal/send-counter/')" class="itemIblock four">
             <span class="bg"></span>
             <span class="text">
               <span class="title">{{$t('countTitle')}}</span>
@@ -41,7 +41,7 @@
             </span>
           </a>
 
-          <nuxt-link :to="localePath('/epd/')" class="two">
+          <nuxt-link :to="localePath('/Epd/')" class="two">
             <span class="bg" style="background-image: url('/img/default/service/service2.png')"></span>
             <span class="text">
               <span class="title">{{$t('epdTitle')}}</span>
@@ -56,20 +56,23 @@
 </template>
 
 <script>
-  import searchForm from '@/components/default/components/home/search'
+  import HomeSearchFrom from '../components/Default/Home/HomeSearchForm'
 
 export default {
   head() {
     return {
-      title: 'Портал - ЖКХ',
+      title: 'Портал ЖКХ города Чебоксары и Чувашской Республики Чувашия',
       meta: [
-        // hid is used as unique identifier. Do not use `vmid` for it as it will not work
         {
           hid: 'description',
           name: 'description',
-          content: 'Портал - ЖКХ'
+          content: 'Информационно-справочный ресурс жилищно-коммунального хозяйства города Чебоксары и Чувашской Республики. Справочник жилых домов и обслуживающих организаций. Передача показания счетчиков.'
+        },
+        {
+          name: 'keywords',
+          content: 'жкх, портал, Чувашия, Чебоксры, дом, счетчики, личный кабинет'
         }
-      ]
+      ],
     }
   },
   data(){
@@ -78,7 +81,7 @@ export default {
     }
   },
   components:{
-    searchForm
+    HomeSearchFrom
   },
 }
 </script>
@@ -95,7 +98,7 @@ export default {
       "portalTitle": "Информационно-справочный портал",
       "portalDesc": "Справочник жилого фонда, обслуживающих и ресурсоснабжающих организаций",
       "countTitle": "Показание счетчиков",
-      "countDesc": "принимаются с 20-25 число месяца",
+      "countDesc": "передаются с 20 по 25 число месяца",
       "countText": "",
       "reportTitle": "Новости",
       "reportDesc": "Портал chelife.ru"

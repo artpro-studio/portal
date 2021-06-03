@@ -74,12 +74,19 @@ module.exports.Home = async (req, res, next) => {
   try {
     let and = req.body.and,
         or = req.body.or,
-        intOffset = req.body.offset || 1,
+        intOffset = req.body.page || 1,
         intLimit = req.body.limit || 10;
     intOffset -= 1
     let house = [];
     if(!or){
       house = await House.findAndCountAll({
+        include:[
+          {
+            model: Organization,
+            as: 'managementOrganization',
+          }
+        ],
+
         where: {
           [Op.and]: and,
         },
@@ -88,6 +95,12 @@ module.exports.Home = async (req, res, next) => {
       })
     }else{
       house = await House.findAndCountAll({
+        include:[
+          {
+            model: Organization,
+            as: 'managementOrganization',
+          }
+        ],
         where: {
           [Op.or]: or,
           [Op.and]: and,
@@ -155,7 +168,7 @@ module.exports.LiveHouse = async (req, res, next) => {
   //Живой поиск дома
   try {
     if(req.body.search == ''){
-      return next(ApiError.errorValidations('Пустой массив'))
+      return next(ApiError.errorValidations('Пустая строка'))
     }
 
     let search = req.body.search.split(' ')
@@ -173,6 +186,41 @@ module.exports.LiveHouse = async (req, res, next) => {
     res.json({status: true, house })
   } catch (e) {
     console.log(e)
+    return next(ApiError.errorValidations(e))
+  }
+}
+
+module.exports.findWhereOrg = async (req, res, next) =>{
+  //Поиск адресов по организации
+
+  try {
+
+    let org = req.body.org,
+      intOffset = req.body.offset - 1 || 0,
+      intLimit = req.body.limit || 10;
+
+    let search = req.body.search.split(' ')
+    let newSearch = search.map(item => {
+      return item = '%' + item + '%'
+    })
+
+    if(org == ''){
+      return next(ApiError.errorValidations('Вы не указали организацию'))
+    }
+
+    const house = await House.findAndCountAll({
+      where:{
+        formattedAddress: {
+          [Op.iLike]: { [Op.all]: newSearch}
+        },
+        managementOrganizationId: org
+      },
+      limit: intLimit,
+      offset: intOffset * intLimit,
+    })
+    res.json({status: true, house })
+  } catch (e) {
+    console.log();
     return next(ApiError.errorValidations(e))
   }
 }

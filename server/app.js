@@ -10,6 +10,7 @@ const nodeMailerRouter =  require('./routes/nodeMailer/index')
 const organizationsRouter =  require('./routes/user/organization.router')
 const integrationRouter =  require('./routes/integration/integration.router')
 const addressRouter =  require('./routes/address/address.router')
+const epdRouter =  require('./routes/epd/epd.router')
 
 const server = require('http').createServer(app)
 
@@ -29,6 +30,7 @@ app.use('/api/v1', organizationsRouter)
 app.use('/api/v1', nodeMailerRouter)
 app.use('/api/v1', integrationRouter)
 app.use('/api/v1/address', addressRouter)
+app.use('/api/v1/', epdRouter)
 
 //Обработка ошибок
 app.use(handlersMiddleware)
